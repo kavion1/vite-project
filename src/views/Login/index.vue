@@ -1,38 +1,90 @@
-<script setup lang="ts">
-import { ref } from 'vue'
+<script lang="ts">
+import { ref } from 'vue';
+export default {
+  name: 'Login',
+  setup() {
+    interface LoginData {
+      username: string;
+      password: string;
+    }
 
-defineProps<{ msg: string }>()
+    const loginData = ref<LoginData>({
+      username: '',
+      password: '',
+    });
 
-const count = ref(0)
+    const loginRules = {
+      username: [
+        { required: true, message: '请输入用户名', trigger: 'blur' },
+      ],
+      password: [
+        { required: true, message: '请输入密码', trigger: 'blur' },
+      ],
+    };
+
+    const login = () => {
+      // 处理登录逻辑
+      console.log('登录');
+    };
+
+    return {
+      loginData,
+      loginRules,
+      login,
+    };
+  },
+};
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
-
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
+  <div class="common-layout">
+    <el-container>
+      <el-main>
+        <div class="login-container">
+          <el-card class="login-card" shadow="hover">
+            <el-form ref="loginForm" :model="loginData" :rules="loginRules">
+              <el-form-item class="login-form-item" prop="username">
+                <el-input v-model="loginData.username" prefix-icon="UserFilled"></el-input>
+              </el-form-item>
+              <el-form-item  class="login-form-item" prop="password">
+                <el-input type="password" v-model="loginData.password"  prefix-icon="Key"></el-input>
+              </el-form-item>
+              <el-form-item class="login-form-item">
+                <el-button class="login-button" type="primary" @click="login">登录</el-button>
+              </el-form-item>
+              <el-form-item class="login-form-item">
+                <el-button color="#626aef" plain class="login-button" @click="login">注册</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
+      </el-main>
+      <el-footer>Footer</el-footer>
+    </el-container>
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Install
-    <a href="https://github.com/vuejs/language-tools" target="_blank">Volar</a>
-    in your IDE for a better DX
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
 
 <style scoped>
-.read-the-docs {
-  color: #888;
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-card {
+  width: 400px;
+  /* height: 200px; */
+  padding: 40px;
+  border: 1px solid #ebeef5;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.login-form-item {
+  padding: 10px;
+}
+
+.login-button {
+  width: 100vw;
 }
 </style>
