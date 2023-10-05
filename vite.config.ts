@@ -15,4 +15,7 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
   ],
+  optimizeDeps: {
+    include: ['particles.js']
+  }
 })
