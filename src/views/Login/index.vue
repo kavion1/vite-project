@@ -1,6 +1,8 @@
 <script lang="ts">
-import { ref } from 'vue';
-export default {
+import { ref, onMounted, defineComponent } from 'vue';
+
+// import * as particlesJS from 'particles.js';
+export default defineComponent ({
   name: 'Login',
   setup() {
     interface LoginData {
@@ -22,6 +24,12 @@ export default {
       ],
     };
 
+    onMounted(() => {
+      (window as any).particlesJS.load('particles-js', '../../../particles.json', function () {
+        console.log('particles.js loaded');
+      });
+    });
+
     const login = () => {
       // 处理登录逻辑
       console.log('登录');
@@ -33,12 +41,14 @@ export default {
       login,
     };
   },
-};
+
+});
 </script>
 
 <template>
   <div class="common-layout">
     <el-container>
+      <div id="particles-js"></div>
       <el-main>
         <div class="login-container">
           <el-card class="login-card" shadow="hover">
@@ -86,5 +96,13 @@ export default {
 
 .login-button {
   width: 100vw;
+}
+
+#particles-js {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>
