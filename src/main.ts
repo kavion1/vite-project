@@ -13,6 +13,12 @@ import {
   ElFormItem,
   ElInput,
   ElCard,
+  ElMenu,
+  ElSubMenu,
+  ElMenuItemGroup,
+  ElMenuItem,
+  ElContainer,
+  ElAside,
 } from 'element-plus'
 
 
@@ -30,7 +36,12 @@ app.use(ElButton)
   .use(ElFormItem)
   .use(ElInput)
   .use(ElCard)
-
+  .use(ElMenu)
+  .use(ElSubMenu)
+  .use(ElMenuItemGroup)
+  .use(ElMenuItem)
+  .use(ElContainer)
+  .use(ElAside)
 
 app.use(router)
 app.mount('#app')

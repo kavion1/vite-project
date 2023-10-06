@@ -8,6 +8,11 @@ const router = createRouter({
       name: 'login',
       component: () => import('../views/Login/index.vue')
     },
+    {
+      path: '/transaction_record',
+      name: 'transactionRecord',
+      component: () => import('../views/Transaction/transactionRecord.vue')
+    }
   ]
 })
 
