@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import Framework from './components/Framework.vue';
+
 </script>
 <template>
   <div class="layout">
-      <router-view />
+    <Framework />
   </div>
 </template>
 
