@@ -38,7 +38,7 @@
 					>
 						编辑
 					</el-button>
-					<el-button type="primary" plain>导出</el-button>
+					<el-button type="primary" plain @click="Export">导出</el-button>
 				</div>
 			</el-card>
 		</div>
@@ -101,6 +101,8 @@
 import dayjs from "dayjs";
 import { ref, reactive } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
+import ExcelJS from "exceljs";
+
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
 	bill_id: string; //账单号
@@ -123,6 +125,13 @@ interface AddForm {
 }
 
 const tableData = ref<tableData[]>([
+	{
+		bill_id: "012333221232",
+		bill_type: "线上交易",
+		bill_amount: 300,
+		create_time: "2023-01-01",
+		bill_remarks: "123",
+	},
 	{
 		bill_id: "012333221232",
 		bill_type: "线上交易",
@@ -198,6 +207,77 @@ const ChechkForm = () => {
 		end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
 		p: currentPage.value,
 	};
+};
+//导出
+const Export = () => {
+	const workbook = new ExcelJS.Workbook();
+	const sheet = workbook.addWorksheet("My Sheet");
+	const columns = [
+		{
+			header: "账单号",
+			key: "bill_id",
+			width: 20,
+		},
+		{
+			header: "交易类型",
+			key: "bill_type",
+			width: 20,
+		},
+		{
+			header: "资金",
+			key: "bill_amount",
+			width: 20,
+		},
+		{
+			header: "交易时间",
+			key: "create_time",
+			width: 20,
+		},
+		{
+			header: "备注",
+			key: "bill_remarks",
+			width: 10,
+		},
+	];
+	sheet.columns = columns;
+	// 数据行
+	tableData.value.forEach((o) => {
+		const rows = Object.values(o);
+		sheet.addRow(rows);
+	});
+	// 表头样式
+	const excelBaseStyle = {
+		font: {
+			size: 15,
+			bold: true,
+		},
+		alignment: { vertical: "middle", horizontal: "center" },
+		fill: {
+			type: "pattern",
+			pattern: "solid",
+			fgColor: { argb: "808080" },
+		},
+		border: {
+			top: { style: "thin", color: { argb: "9e9e9e" } },
+			left: { style: "thin", color: { argb: "9e9e9e" } },
+			bottom: { style: "thin", color: { argb: "9e9e9e" } },
+			right: { style: "thin", color: { argb: "9e9e9e" } },
+		},
+	};
+	const headerRow = sheet.getRow(1);
+	headerRow.eachCell((cell) => {
+		cell.style = excelBaseStyle as Partial<ExcelJS.Style>;
+	});
+
+	workbook.xlsx.writeBuffer().then((buffer) => {
+		let file = new Blob([buffer], {
+			type: "application/octet-stream",
+		});
+		const downloadLink = document.createElement("a");
+		downloadLink.href = URL.createObjectURL(file);
+		downloadLink.download = "账单" + dayjs().format("YYYYMMDD") + ".xlsx";
+		downloadLink.click();
+	});
 };
 </script>
 
