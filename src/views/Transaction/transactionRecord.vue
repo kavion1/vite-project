@@ -51,6 +51,8 @@
 					@selection-change="handleSelectionChange"
 					highlight-current-row="true"
 					stripe="true"
+					v-loading="Tabelloading"
+					element-loading-text="加载中..."
 				>
 					<el-table-column type="selection" width="55"></el-table-column>
 					<el-table-column prop="bill_id" label="账单号" width="180"></el-table-column>
@@ -74,7 +76,7 @@
 				</div>
 			</el-card>
 			<!-- 新增编辑 -->
-			<el-dialog v-model="dialogFormVisible" title="新增账单" @closed="CancelForm(ruleFormRef)">
+			<el-dialog v-model="dialogFormVisible" title="新增账单" @closed="CancelForm(ruleFormRef)" width="500px">
 				<el-form :model="AddForm" :rules="rules" ref="ruleFormRef">
 					<el-form-item label="账单类型" label-width="120px" prop="bill_type">
 						<el-select v-model="AddForm.bill_type" placeholder="请选择账单类型" clearable>
@@ -111,6 +113,7 @@ import dayjs from "dayjs";
 import { ref, reactive } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import ExcelJS from "exceljs";
+import { fa } from "element-plus/es/locale/index.js";
 
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
@@ -163,9 +166,11 @@ const AddForm = ref<tableData>({
 	create_time: "",
 	bill_remarks: "",
 });
+
 const ruleFormRef = ref<FormInstance>();
 const currentPage = ref<number>(1);
 const dialogFormVisible = ref<boolean>(false);
+const Tabelloading = ref<boolean>(false);
 const SelectRows = ref<tableData[]>([]);
 const rules = reactive<FormRules<AddForm>>({
 	bill_type: [{ required: true, message: "账单类型不能为空！", trigger: "change" }],
@@ -211,6 +216,11 @@ const CancelForm = (formrules: FormInstance | undefined) => {
 };
 //查询
 const ChechkForm = () => {
+	Tabelloading.value = true;
+	const t = setTimeout(() => {
+		Tabelloading.value = false;
+		clearTimeout(t);
+	}, 3000);
 	const param = {
 		start_date: dayjs(Tabelform.value.date[0]).format("YYYY-MM-DD HH:mm:ss"),
 		end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
@@ -260,7 +270,6 @@ const Export = () => {
 			size: 15,
 			bold: true,
 		},
-		alignment: { vertical: "middle", horizontal: "center" },
 		fill: {
 			type: "pattern",
 			pattern: "solid",
@@ -277,6 +286,14 @@ const Export = () => {
 	headerRow.eachCell((cell) => {
 		cell.style = excelBaseStyle as Partial<ExcelJS.Style>;
 	});
+	for (let i = 0; i < columns.length; i++) {
+		const line = sheet.getColumn(i + 1);
+		line.eachCell((cell) => {
+			cell.style = {
+				alignment: { vertical: "middle", horizontal: "center" },
+			} as Partial<ExcelJS.Style>;
+		});
+	}
 	workbook.xlsx.writeBuffer().then((buffer) => {
 		let file = new Blob([buffer], {
 			type: "application/octet-stream",
