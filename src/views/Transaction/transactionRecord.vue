@@ -46,6 +46,9 @@
 			<!-- 列表 -->
 			<el-card shadow="always">
 				<el-table :data="tableData" height="500px" @selection-change="handleSelectionChange">
+					<template v-slot:empty>
+						<el-empty description="description" />
+					</template>
 					<el-table-column type="selection" width="55"></el-table-column>
 					<el-table-column prop="bill_id" label="账单号" width="180"></el-table-column>
 					<el-table-column prop="bill_type" label="交易类型" width="180"></el-table-column>
@@ -125,20 +128,20 @@ interface AddForm {
 }
 
 const tableData = ref<tableData[]>([
-	{
-		bill_id: "012333221232",
-		bill_type: "线上交易",
-		bill_amount: 300,
-		create_time: "2023-01-01",
-		bill_remarks: "123",
-	},
-	{
-		bill_id: "012333221232",
-		bill_type: "线上交易",
-		bill_amount: 300,
-		create_time: "2023-01-01",
-		bill_remarks: "123",
-	},
+	// {
+	// 	bill_id: "012333221232",
+	// 	bill_type: "线上交易",
+	// 	bill_amount: 300,
+	// 	create_time: "2023-01-01",
+	// 	bill_remarks: "123",
+	// },
+	// {
+	// 	bill_id: "012333221232",
+	// 	bill_type: "线上交易",
+	// 	bill_amount: 300,
+	// 	create_time: "2023-01-01",
+	// 	bill_remarks: "123",
+	// },
 ]);
 const Tabelform = ref<Tabelform>({
 	date: "",
