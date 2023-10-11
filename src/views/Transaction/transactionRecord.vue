@@ -211,7 +211,7 @@ const ChechkForm = () => {
 //导出
 const Export = () => {
 	const workbook = new ExcelJS.Workbook();
-	const sheet = workbook.addWorksheet("My Sheet");
+	const sheet = workbook.addWorksheet("账单" + dayjs().format("YYYYMMDD"));
 	const columns = [
 		{
 			header: "账单号",
@@ -268,7 +268,6 @@ const Export = () => {
 	headerRow.eachCell((cell) => {
 		cell.style = excelBaseStyle as Partial<ExcelJS.Style>;
 	});
-
 	workbook.xlsx.writeBuffer().then((buffer) => {
 		let file = new Blob([buffer], {
 			type: "application/octet-stream",
