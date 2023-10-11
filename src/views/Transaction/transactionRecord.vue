@@ -113,7 +113,6 @@ import dayjs from "dayjs";
 import { ref, reactive } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import ExcelJS from "exceljs";
-import { fa } from "element-plus/es/locale/index.js";
 
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
