@@ -15,6 +15,7 @@
 						</el-form-item>
 						<el-form-item label="交易日期">
 							<el-date-picker
+								:disabled-date="DisabledDate"
 								v-model="Tabelform.date"
 								type="datetimerange"
 								start-placeholder="开始日期"
@@ -98,7 +99,7 @@
 				</el-form>
 				<template #footer>
 					<span class="Footer_Button">
-						<el-checkbox v-model="ContinuousEntry" label="连续录入" size="large" />
+						<el-checkbox v-model="ContinuousEntry" label="连续录入" size="large" v-show="!AddForm.bill_id" />
 						<el-button @click="dialogFormVisible = false">取消</el-button>
 						<el-button type="primary" @click="SubmitForm(ruleFormRef)">提交</el-button>
 					</span>
@@ -124,7 +125,7 @@ interface tableData {
 	bill_remarks: string; //备注
 }
 interface Tabelform {
-	date: string;
+	date: string[];
 	start_date: string; //开始时间
 	end_date: string; //结束时间
 	p: string; //第几页;
@@ -153,7 +154,10 @@ const tableData = ref<tableData[]>([
 	},
 ]);
 const Tabelform = ref<Tabelform>({
-	date: "",
+	date: [
+		dayjs(new Date().setHours(0, 0, 0, 0)).subtract(6, "months").format("YYYY-MM-DD HH:mm:ss"),
+		dayjs(new Date().setHours(0, 0, 0, 0)).format("YYYY-MM-DD HH:mm:ss"),
+	],
 	start_date: "",
 	end_date: "",
 	p: "",
@@ -186,13 +190,16 @@ const handleSelectionChange = (val: tableData[]) => {
 	SelectRows.value = val;
 	console.log("val", val);
 };
-
+//默认展示半年账单，最大可选择时间区间为一年
+const DisabledDate = (date: Date) => {
+	return dayjs(date) >= dayjs(new Date());
+};
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
 		if (valid) {
 			proxy?.$axios
-				.post(AddForm.value.bill_id ? "" : "/api/1.0/bill/create", AddForm)
+				.post(AddForm.value.bill_id ? "" : "/api/1.0/bill/create", AddForm.value)
 				.then((result: { success: any }) => {
 					if (result.success) {
 						ChechkForm();
