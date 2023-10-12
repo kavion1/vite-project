@@ -113,7 +113,7 @@ import dayjs from "dayjs";
 import { ref, reactive } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import ExcelJS from "exceljs";
-
+import { deepCloneObj } from "../../utils";
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
 	bill_id: string; //账单号
@@ -202,7 +202,7 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	});
 };
 const EditeForm = () => {
-	AddForm.value = SelectRows.value[0];
+	AddForm.value = deepCloneObj(SelectRows.value[0]);
 	dialogFormVisible.value = true;
 };
 const CancelForm = (formrules: FormInstance | undefined) => {
@@ -285,7 +285,7 @@ const Export = () => {
 		const line = sheet.getColumn(i + 1);
 		line.eachCell((cell) => {
 			cell.style = {
-				alignment: { vertical: "middle", horizontal: "center" },
+				alignment: { vertical: "middle", horizontal: "center", wrapText: true },
 			} as Partial<ExcelJS.Style>;
 		});
 	}
