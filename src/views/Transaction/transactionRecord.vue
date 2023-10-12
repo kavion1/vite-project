@@ -59,7 +59,7 @@
 					<el-table-column prop="bill_type" label="交易类型" width="180"></el-table-column>
 					<el-table-column prop="bill_amount" label="资金" width="100"></el-table-column>
 					<el-table-column prop="create_time" label="交易时间" width="170"></el-table-column>
-					<el-table-column prop="bill_remarks" label="备注"></el-table-column>
+					<el-table-column prop="bill_remarks" label="备注" show-overflow-tooltip="true"></el-table-column>
 					<template v-slot:empty>
 						<el-empty description="暂无数据" />
 					</template>
@@ -172,8 +172,8 @@ const dialogFormVisible = ref<boolean>(false);
 const Tabelloading = ref<boolean>(false);
 const SelectRows = ref<tableData[]>([]);
 const rules = reactive<FormRules<AddForm>>({
-	bill_type: [{ required: true, message: "账单类型不能为空！", trigger: "change" }],
-	bill_amount: [{ required: true, message: "账单金额不能为空！", trigger: "change" }],
+	bill_type: [{ required: true, message: "账单类型不能为空！", trigger: "blur" }],
+	bill_amount: [{ required: true, message: "账单金额不能为空！", trigger: "blur" }],
 });
 const ContinuousEntry = ref<boolean>(false);
 //当前页
@@ -206,12 +206,8 @@ const EditeForm = () => {
 	dialogFormVisible.value = true;
 };
 const CancelForm = (formrules: FormInstance | undefined) => {
-	// dialogFormVisible.value = false;
-	console.log("进");
-
-	formrules?.clearValidate();
-
 	AddForm.value = { bill_id: "", bill_type: "", bill_amount: undefined, create_time: "", bill_remarks: "" };
+	formrules?.clearValidate();
 };
 //查询
 const ChechkForm = () => {
