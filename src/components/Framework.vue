@@ -70,7 +70,7 @@
 import { ElButton } from "element-plus";
 import { FormInstance } from "element-plus/lib/components/form/index.js";
 import { FormRules } from "element-plus/lib/components/form/src/types.js";
-import { onMounted, reactive, ref } from "vue";
+import { reactive, ref, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 const ruleFormRef = ref<any>();
 interface PassWordType {
@@ -83,7 +83,7 @@ const PassWordForm = ref<PassWordType>({
 	phone_code: "",
 	password: "",
 });
-
+const { proxy } = getCurrentInstance();
 const router = useRouter();
 const dialogFormVisible = ref<boolean>(false);
 const authenticated = ref<string[]>(["transactionRecord"]);
@@ -127,16 +127,26 @@ const handleCommand = (command: string | number | object) => {
 	if (command == "Logout") {
 	}
 };
+
 const getCode = (FormRules: any) => {
-	FormRules.validateField("phone_num", (bool: boolean, b) => {
+	FormRules.validateField("phone_num", (bool: boolean) => {
 		if (bool) {
-			countDown.value = 60;
-			const Time = setInterval(() => {
-				countDown.value = countDown.value - 1;
-				if (countDown.value == 0) {
-					clearTimeout(Time);
-				}
-			}, 1000);
+			proxy.$axios
+				.get("/api/1.0/user/smsCode", { phone_num: PassWordForm.value.phone_num })
+				.then((result: any) => {
+					if (result.re_code == 0) {
+						countDown.value = 60;
+						const Time = setInterval(() => {
+							countDown.value = countDown.value - 1;
+							if (countDown.value == 0) {
+								clearTimeout(Time);
+							}
+						}, 1000);
+					}
+				})
+				.catch((err: any) => {
+					console.log("修改密码验证码错误", err);
+				});
 		}
 	});
 };

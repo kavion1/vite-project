@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
+    "axios": "^1.5.1",
     "element-plus": "^2.3.14",
     "exceljs": "^4.3.0",
     "particles": "^0.3.1",

@@ -5,7 +5,7 @@ import router from './router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
-
+import axios from './apis/index';
 
 import {
   ElButton,
@@ -48,7 +48,7 @@ app.use(ElButton)
   .use(ElMenuItem)
   .use(ElContainer)
   .use(ElAside)
-
+app.config.globalProperties.$axios = axios
 app.use(router)
 app.mount('#app')
 

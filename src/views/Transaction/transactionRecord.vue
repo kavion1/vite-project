@@ -69,7 +69,7 @@
 						@current-change="handleCurrentChange"
 						v-model:current-page="currentPage"
 						background="#ffffff"
-						:total="tableData.length"
+						:total="TabelTotal"
 						page-size="100"
 						layout="total, sizes, prev, pager, next, jumper"
 					></el-pagination>
@@ -110,10 +110,11 @@
 
 <script lang="ts" setup>
 import dayjs from "dayjs";
-import { ref, reactive } from "vue";
+import { ref, reactive, getCurrentInstance } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import ExcelJS from "exceljs";
 import { deepCloneObj } from "../../utils";
+const { proxy } = getCurrentInstance();
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
 	bill_id: string; //账单号
@@ -171,6 +172,7 @@ const currentPage = ref<number>(1);
 const dialogFormVisible = ref<boolean>(false);
 const Tabelloading = ref<boolean>(false);
 const SelectRows = ref<tableData[]>([]);
+const TabelTotal = ref<number>(0);
 const rules = reactive<FormRules<AddForm>>({
 	bill_type: [{ required: true, message: "账单类型不能为空！", trigger: "blur" }],
 	bill_amount: [{ required: true, message: "账单金额不能为空！", trigger: "blur" }],
@@ -189,13 +191,22 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
 		if (valid) {
-			tableData.value.push({ ...AddForm.value, create_time: dayjs().format("YYYY-MM-DD HH:mm:ss") });
-			if (ContinuousEntry.value) {
-				formrules?.resetFields();
-			} else {
-				dialogFormVisible.value = false;
-			}
-			console.log("submit!");
+			proxy.$axios
+				.post(AddForm.value.bill_id ? "" : "/api/1.0/bill/create", AddForm)
+				.then((result: { success: any }) => {
+					if (result.success) {
+						ChechkForm();
+						if (ContinuousEntry.value && !AddForm.value.bill_id) {
+							formrules?.resetFields();
+						} else {
+							dialogFormVisible.value = false;
+						}
+					}
+				})
+				.catch((err: any) => {
+					console.log("提交错误", err);
+				});
+			// tableData.value.push({ ...AddForm.value, create_time: dayjs().format("YYYY-MM-DD HH:mm:ss") });
 		} else {
 			console.log("error submit!", fields);
 		}
@@ -221,6 +232,16 @@ const ChechkForm = () => {
 		end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
 		p: currentPage.value,
 	};
+	proxy.$axios
+		.get("/api/1.0/bill/list", param)
+		.then((result: { data: { bill_records: any; total_page: any }; re_code: number }) => {
+			const { bill_records, total_page } = result.data;
+			if (result.re_code == 0) {
+				tableData.value = bill_records;
+				TabelTotal.value = total_page;
+			}
+		})
+		.catch((err: any) => {});
 };
 //导出
 const Export = () => {
