@@ -83,7 +83,7 @@ const PassWordForm = ref<PassWordType>({
 	phone_code: "",
 	password: "",
 });
-const { proxy } = getCurrentInstance();
+const { proxy } = getCurrentInstance() as any;
 const router = useRouter();
 const dialogFormVisible = ref<boolean>(false);
 const authenticated = ref<string[]>(["transactionRecord"]);
@@ -132,7 +132,7 @@ const getCode = (FormRules: any) => {
 	FormRules.validateField("phone_num", (bool: boolean) => {
 		if (bool) {
 			proxy.$axios
-				.get("/api/1.0/user/smsCode", { phone_num: PassWordForm.value.phone_num })
+				?.get("/api/1.0/user/smsCode", { phone_num: PassWordForm.value.phone_num })
 				.then((result: any) => {
 					if (result.re_code == 0) {
 						countDown.value = 60;

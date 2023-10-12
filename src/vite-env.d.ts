@@ -6,3 +6,4 @@ declare module '*.vue' {
   export default component
 }
 declare module 'element-plus/dist/locale/zh-cn.mjs'
+

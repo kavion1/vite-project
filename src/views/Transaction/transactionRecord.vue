@@ -114,7 +114,7 @@ import { ref, reactive, getCurrentInstance } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import ExcelJS from "exceljs";
 import { deepCloneObj } from "../../utils";
-const { proxy } = getCurrentInstance();
+const { proxy } = getCurrentInstance() as any;
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
 	bill_id: string; //账单号
@@ -191,7 +191,7 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
 		if (valid) {
-			proxy.$axios
+			proxy?.$axios
 				.post(AddForm.value.bill_id ? "" : "/api/1.0/bill/create", AddForm)
 				.then((result: { success: any }) => {
 					if (result.success) {
@@ -241,7 +241,9 @@ const ChechkForm = () => {
 				TabelTotal.value = total_page;
 			}
 		})
-		.catch((err: any) => {});
+		.catch((err: any) => {
+			console.log("err", err);
+		});
 };
 //导出
 const Export = () => {
