@@ -9,7 +9,7 @@
 			<el-card shadow="always">
 				<div class="Search">
 					<!-- 列表查询条件 -->
-					<el-form :inline="true" :model="Tabelform">
+					<el-form :inline="true" :model="Tabelform" class="SearchForm" label-width="100px">
 						<el-form-item label="账单号">
 							<el-input v-model="Tabelform.TransactionDocumentNumber" placeholder="账单号"></el-input>
 						</el-form-item>
@@ -321,6 +321,7 @@ const Export = () => {
 	display: flex;
 	gap: 10px;
 }
+
 .check {
 	display: flex;
 	justify-content: center;
