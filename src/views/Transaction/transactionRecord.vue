@@ -72,6 +72,7 @@
 				<div class="Content_Foot">
 					<el-pagination
 						@current-change="handleCurrentChange"
+						v-model:page-size="pageSize"
 						v-model:current-page="currentPage"
 						background="#ffffff"
 						:total="TabelTotal"
@@ -180,6 +181,7 @@ const AddForm = ref<tableData>({
 
 const ruleFormRef = ref<FormInstance>();
 const currentPage = ref<number>(1);
+const pageSize = ref<number>(5);
 const dialogFormVisible = ref<boolean>(false);
 const Tabelloading = ref<boolean>(false);
 const SelectRows = ref<tableData[]>([]);
@@ -245,6 +247,7 @@ const ChechkForm = () => {
 		start_date: dayjs(Tabelform.value.date[0]).format("YYYY-MM-DD HH:mm:ss"),
 		end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
 		p: currentPage.value,
+		pz: pageSize.value,
 	};
 	proxy.$axios
 		.get("/apis/api/1.0/bill/list", param)
