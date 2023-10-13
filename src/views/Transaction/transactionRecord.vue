@@ -57,7 +57,11 @@
 				>
 					<el-table-column type="selection" width="55"></el-table-column>
 					<el-table-column prop="bill_id" label="账单号" width="180"></el-table-column>
-					<el-table-column prop="bill_type" label="交易类型" width="180"></el-table-column>
+					<el-table-column prop="bill_type" label="交易类型" width="180">
+						<template #default="scoped">
+							{{ TypeDict.get(scoped.row.bill_type) }}
+						</template>
+					</el-table-column>
 					<el-table-column prop="bill_amount" label="资金" width="100"></el-table-column>
 					<el-table-column prop="create_time" label="交易时间" width="170"></el-table-column>
 					<el-table-column prop="bill_remarks" label="备注" show-overflow-tooltip="true"></el-table-column>
@@ -136,18 +140,21 @@ interface AddForm {
 	bill_amount: string; //账单金额
 	bill_remarks: string; //账单备注
 }
-
+const TypeDict = new Map([
+	["1", "线上交易"],
+	["2", "线上交易"],
+]);
 const tableData = ref<tableData[]>([
 	{
 		bill_id: "012333221232",
-		bill_type: "线上交易",
+		bill_type: "1",
 		bill_amount: 300,
 		create_time: "2023-01-01",
 		bill_remarks: "123",
 	},
 	{
 		bill_id: "012333221232",
-		bill_type: "线上交易",
+		bill_type: "2",
 		bill_amount: 300,
 		create_time: "2023-01-01",
 		bill_remarks: "123",
