@@ -132,7 +132,7 @@ const getCode = (FormRules: any) => {
 	FormRules.validateField("phone_num", (bool: boolean) => {
 		if (bool) {
 			proxy.$axios
-				?.get("/api/1.0/user/smsCode", { phone_num: PassWordForm.value.phone_num })
+				?.get("/apis/api/1.0/user/smsCode", { phone_num: PassWordForm.value.phone_num })
 				.then((result: any) => {
 					if (result.re_code == 0) {
 						countDown.value = 60;

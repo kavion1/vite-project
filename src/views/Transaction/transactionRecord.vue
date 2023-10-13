@@ -199,7 +199,7 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	await formrules.validate((valid, fields) => {
 		if (valid) {
 			proxy?.$axios
-				.post(AddForm.value.bill_id ? "" : "/api/1.0/bill/create", AddForm.value)
+				.post(AddForm.value.bill_id ? "" : "/apis/api/1.0/bill/create", AddForm.value)
 				.then((result: { success: any }) => {
 					if (result.success) {
 						ChechkForm();
@@ -240,7 +240,7 @@ const ChechkForm = () => {
 		p: currentPage.value,
 	};
 	proxy.$axios
-		.get("/api/1.0/bill/list", param)
+		.get("/apis/api/1.0/bill/list", param)
 		.then((result: { data: { bill_records: any; total_page: any }; re_code: number }) => {
 			const { bill_records, total_page } = result.data;
 			if (result.re_code == 0) {
