@@ -181,7 +181,7 @@ const AddForm = ref<tableData>({
 
 const ruleFormRef = ref<FormInstance>();
 const currentPage = ref<number>(1);
-const pageSize = ref<number>(5);
+const pageSize = ref<number>(10);
 const dialogFormVisible = ref<boolean>(false);
 const Tabelloading = ref<boolean>(false);
 const SelectRows = ref<tableData[]>([]);
