@@ -1,48 +1,76 @@
-<script lang="ts">
+<script lang="ts" setup>
 import { ref, onMounted, defineComponent } from 'vue';
+import SignIn from './signIn.vue';
+import Login from './login.vue';
+import HelloWorld from '../HelloWorld.vue';
 
+import type { TabsPaneContext } from 'element-plus'
 // import * as particlesJS from 'particles.js';
-export default defineComponent ({
-  name: 'Login',
-  setup() {
-    interface LoginData {
-      username: string;
-      password: string;
-    }
 
-    const loginData = ref<LoginData>({
-      username: '',
-      password: '',
-    });
+interface LoginData {
+  username: string;
+  password: string;
+}
 
-    const loginRules = {
-      username: [
-        { required: true, message: '请输入用户名', trigger: 'blur' },
-      ],
-      password: [
-        { required: true, message: '请输入密码', trigger: 'blur' },
-      ],
-    };
+interface signInData {
+	phone_num: string;
+	phone_code: string;
+	password: string;
+  confirmPassword: string;
 
-    onMounted(() => {
-      (window as any).particlesJS.load('particles-js', '../../../particles.json', function () {
-        console.log('particles.js loaded');
-      });
-    });
+}
 
-    const login = () => {
-      // 处理登录逻辑
-      console.log('登录');
-    };
-
-    return {
-      loginData,
-      loginRules,
-      login,
-    };
-  },
-
+const loginData = ref<LoginData>({
+  username: '',
+  password: '',
 });
+
+const signInData = ref<signInData>({
+	phone_num: "",
+	phone_code: "",
+	password: "",
+  confirmPassword: "",
+});
+
+const loginRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+  ],
+};
+const countDown = ref<number>(0);
+
+onMounted(() => {
+  (window as any).particlesJS.load('particles-js', '../../../particles.json', function () {
+    console.log('particles.js loaded');
+  });
+});
+const getCode = (FormRules: any) => {
+	FormRules.validateField("phone_num", (bool: boolean, b) => {
+		if (bool) {
+			countDown.value = 60;
+			const Time = setInterval(() => {
+				countDown.value = countDown.value - 1;
+				if (countDown.value == 0) {
+					clearTimeout(Time);
+				}
+			}, 1000);
+		}
+	});
+}
+
+const activeName = ref('first')
+
+const handleClick = (tab: TabsPaneContext, event: Event) => {
+  console.log(tab, event)
+}
+
+const login = () => {
+  // 处理登录逻辑
+  console.log('登录');
+};
 </script>
 
 <template>
@@ -52,20 +80,24 @@ export default defineComponent ({
       <el-main>
         <div class="login-container">
           <el-card class="login-card" shadow="hover">
-            <el-form ref="loginForm" :model="loginData" :rules="loginRules">
-              <el-form-item class="login-form-item" prop="username">
-                <el-input v-model="loginData.username" prefix-icon="UserFilled"></el-input>
-              </el-form-item>
-              <el-form-item  class="login-form-item" prop="password">
-                <el-input type="password" v-model="loginData.password"  prefix-icon="Key"></el-input>
-              </el-form-item>
-              <el-form-item class="login-form-item">
-                <el-button class="login-button" type="primary" @click="login">登录</el-button>
-              </el-form-item>
-              <el-form-item class="login-form-item">
-                <el-button color="#626aef" plain class="login-button" @click="login">注册</el-button>
-              </el-form-item>
-            </el-form>
+            <el-tabs
+              v-model="activeName"
+              type="card"
+              class="tabs"
+              @tab-click="handleClick"
+              :stretch=true
+            >
+              <el-tab-pane label="登录" name="login">
+                <div style="margin-top: 20px">
+                  <Login />
+                </div>
+              </el-tab-pane>
+                <el-tab-pane label="注册" name="signIn">
+                  <div style="margin-top: 20px">
+                    <SignIn />
+                </div>
+                </el-tab-pane>
+            </el-tabs>
           </el-card>
         </div>
       </el-main>
@@ -83,7 +115,7 @@ export default defineComponent ({
 
 .login-card {
   width: 400px;
-  /* height: 200px; */
+  height: 350px;
   padding: 40px;
   border: 1px solid #ebeef5;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
@@ -103,5 +135,11 @@ export default defineComponent ({
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.CodePass {
+	display: grid;
+	grid-template-columns: 2fr 0.3fr;
+	gap: 10px;
 }
 </style>
