@@ -4,14 +4,14 @@ import axios from "axios";
 // axios.defaults.baseURL = 'https://www.fastmock.site/mock/eba0dfae18afc7f633c011ee1f464a6a/Bill' //测试
 
 //post请求头
-axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8";
+axios.defaults.headers.post["Content-Type"] = "application/json";
 //允许跨域携带cookie信息
 axios.defaults.withCredentials = true;
 //设置超时
 axios.defaults.timeout = 15000;
-
 axios.interceptors.request.use(
   (config: any) => {
+    config.headers['Authorization'] = 'Bearer ' + document.cookie.split('access_token=')[1]
     return config;
   },
   (error: any) => {

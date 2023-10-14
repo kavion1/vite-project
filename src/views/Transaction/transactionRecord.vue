@@ -46,7 +46,11 @@
 				>
 					<el-table-column type="selection" width="55"></el-table-column>
 					<el-table-column prop="id" label="账单号" width="180"></el-table-column>
-					<el-table-column prop="type" label="交易类型" width="180"></el-table-column>
+					<el-table-column prop="type" label="交易类型" width="180">
+						<template #default="scope">
+							<div>{{ Type.get(scope.row.type) }}</div>
+						</template>
+					</el-table-column>
 					<el-table-column prop="amount" label="资金" width="100"></el-table-column>
 					<el-table-column prop="create_time" label="交易时间" width="170"></el-table-column>
 					<el-table-column prop="remarks" label="备注" show-overflow-tooltip="true"></el-table-column>
@@ -71,7 +75,10 @@
 				、
 				<el-form :model="AddForm" :rules="rules" ref="ruleFormRef">
 					<el-form-item label="账单类型" label-width="120px" prop="type">
-						<el-input v-model="AddForm.type"></el-input>
+						<el-radio-group v-model="AddForm.type">
+							<el-radio label="CONSUMPTION" size="large">消费</el-radio>
+							<el-radio label="TRANSFEROUT" size="large">转出</el-radio>
+						</el-radio-group>
 					</el-form-item>
 					<el-form-item label="账单金额" label-width="120px" prop="amount">
 						<el-input
@@ -122,22 +129,27 @@ interface AddForm {
 	amount: string; //账单金额
 	remarks: string; //账单备注
 }
-
+const Type = new Map([
+	["CONSUMPTION", "消费"],
+	["TRANSFEROUT", "转出"],
+]);
 const tableData = ref<tableData[]>([]);
 const Tabelform = ref<Tabelform>({
 	date: [
 		dayjs(new Date().setHours(0, 0, 0, 0)).subtract(6, "months").format("YYYY-MM-DD HH:mm:ss"),
-		dayjs(new Date().setHours(0, 0, 0, 0)).format("YYYY-MM-DD HH:mm:ss"),
+		dayjs(new Date().setHours(0, 0, 0, 0)).add(1, "days").format("YYYY-MM-DD HH:mm:ss"),
 	],
 	start_date: "",
 	end_date: "",
 	p: "",
 });
-const AddForm = ref<tableData>({
-	id: "",
+const AddForm = ref<{
+	type: string; //交易类型
+	amount: number | undefined; //资金
+	remarks: string; //备注
+}>({
 	type: "",
 	amount: undefined,
-	create_time: "",
 	remarks: "",
 });
 
@@ -174,15 +186,15 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	await formrules.validate((valid, fields) => {
 		if (valid) {
 			proxy?.$axios
-				.post(AddForm.value.id ? "" : "/apis/api/1.0/bill/create", AddForm.value)
-				.then((result: { success: any }) => {
-					if (result.success) {
+				.post("/apis/api/1.0/bill/create", AddForm.value)
+				.then((result: { re_code: any }) => {
+					if (result.re_code == 0) {
 						ChechkForm();
-						if (ContinuousEntry.value && !AddForm.value.id) {
+
+						if (ContinuousEntry.value) {
 							formrules?.resetFields();
 						} else {
 							dialogFormVisible.value = false;
-							ChechkForm();
 						}
 					}
 				})
@@ -196,15 +208,21 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 };
 
 const CancelForm = (formrules: FormInstance | undefined) => {
-	AddForm.value = { id: "", type: "", amount: undefined, create_time: "", remarks: "" };
+	AddForm.value = { type: "", amount: undefined, remarks: "" };
 	formrules?.clearValidate();
 };
 //查询
 const ChechkForm = () => {
 	Tabelloading.value = true;
+	// const param = {
+	// 	start_date: dayjs(Tabelform.value.date[0]).format("YYYY-MM-DD HH:mm:ss"),
+	// 	end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
+	// 	p: currentPage.value,
+	// 	pz: pageSize.value,
+	// };
 	const param = {
-		start_date: dayjs(Tabelform.value.date[0]).format("YYYY-MM-DD HH:mm:ss"),
-		end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
+		start_date: Date.parse(new Date(Tabelform.value.date[0])),
+		end_date: Date.parse(new Date(Tabelform.value.date[1])),
 		p: currentPage.value,
 		pz: pageSize.value,
 	};
@@ -233,10 +251,8 @@ const Reset = () => {
 //导出
 const Export = () => {
 	const param = {
-		start_date: dayjs(Tabelform.value.date[0]).format("YYYY-MM-DD HH:mm:ss"),
-		end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
-		p: currentPage.value,
-		pz: pageSize.value,
+		start_date: Date.parse(new Date(dayjs(new Date()).subtract(1, "years"))),
+		end_date: Date.parse(new Date(Tabelform.value.date[1])),
 	};
 	proxy.$axios
 		.get("/apis/api/1.0/bill/list", param)
