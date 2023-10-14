@@ -1,3 +1,35 @@
+<template>
+  <div class="common-layout">
+    <el-container>
+      <div id="particles-js"></div>
+      <el-main>
+        <div class="login-container">
+          <el-card class="login-card" shadow="hover">
+            <el-tabs
+              v-model="activeName"
+              type="card"
+              class="tabs"
+              @tab-click="handleClick"
+              :stretch=true
+            >
+              <el-tab-pane label="登录" name="login">
+                <div style="margin-top: 20px">
+                  <Login />
+                </div>
+              </el-tab-pane>
+                <el-tab-pane label="注册" name="signIn">
+                  <div style="margin-top: 20px">
+                    <SignIn />
+                </div>
+                </el-tab-pane>
+            </el-tabs>
+          </el-card>
+        </div>
+      </el-main>
+    </el-container>
+  </div>
+</template>
+
 <script lang="ts" setup>
 import { ref, onMounted, defineComponent } from 'vue';
 import SignIn from './signIn.vue';
@@ -32,6 +64,7 @@ const signInData = ref<signInData>({
   confirmPassword: "",
 });
 
+const activeName = ref('login');
 const loginRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -61,7 +94,6 @@ const getCode = (FormRules: any) => {
 	});
 }
 
-const activeName = ref('first')
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)
@@ -72,38 +104,6 @@ const login = () => {
   console.log('登录');
 };
 </script>
-
-<template>
-  <div class="common-layout">
-    <el-container>
-      <div id="particles-js"></div>
-      <el-main>
-        <div class="login-container">
-          <el-card class="login-card" shadow="hover">
-            <el-tabs
-              v-model="activeName"
-              type="card"
-              class="tabs"
-              @tab-click="handleClick"
-              :stretch=true
-            >
-              <el-tab-pane label="登录" name="login">
-                <div style="margin-top: 20px">
-                  <Login />
-                </div>
-              </el-tab-pane>
-                <el-tab-pane label="注册" name="signIn">
-                  <div style="margin-top: 20px">
-                    <SignIn />
-                </div>
-                </el-tab-pane>
-            </el-tabs>
-          </el-card>
-        </div>
-      </el-main>
-    </el-container>
-  </div>
-</template>
 
 <style scoped>
 .login-container {
