@@ -22,6 +22,7 @@ import {
   ElMenuItem,
   ElContainer,
   ElAside,
+  ElMessage
 } from 'element-plus'
 
 
@@ -48,6 +49,7 @@ app.use(ElButton)
   .use(ElMenuItem)
   .use(ElContainer)
   .use(ElAside)
+  .use(ElMessage)
 app.config.globalProperties.$axios = axios
 app.use(router)
 app.mount('#app')

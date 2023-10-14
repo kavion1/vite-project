@@ -16,7 +16,7 @@
       <el-input v-model="signInData.password" placeholder="请输入密码"></el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="signInData.password" placeholder="请确认密码"></el-input>
+      <el-input v-model="signInData.confirm" placeholder="请确认密码"></el-input>
     </el-form-item>
     <el-form-item class="login-form-item">
         <el-button class="login-button" type="primary" @click="handleRegister">注册</el-button>
@@ -26,22 +26,29 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, getCurrentInstance } from "vue";
+import { ref, reactive, getCurrentInstance, defineProps } from "vue";
 const { proxy } = getCurrentInstance() as any;
+import { Md5 } from "ts-md5";
 
 interface SignInData {
 	phone_num: string;
 	phone_code: string;
 	password: string;
+  confirm: 'string'
+
 }
 
-const signInData = ref<SignInData>({
+let signInData = ref<SignInData>({
 	phone_num: "",
 	phone_code: "",
 	password: "",
+  confirm: ''
 });
 
+
 const countDown = ref<number>(0);
+
+const emits = defineEmits(['getActiveName']);
 
 const getCode = (FormRules: any) => {
 	FormRules.validateField("phone_num", (bool: boolean, b) => {
@@ -57,10 +64,38 @@ const getCode = (FormRules: any) => {
 	});
 }
 
-const handleRegister = (signInData: SignInData) => {
-  console.log('shuang signInData', signInData)
-  proxy?.$axios.post('/apis/api/1.0/user/register', signInData).then( res => {
+const handleRegister = () => {
+  console.log('shuang signInData', signInData.value)
+  const params = {
+    phone_num: signInData._value.phone_num,
+    phone_code: signInData._value.password,
+    password: signInData._value.password,
+  }
+  proxy?.$axios.post('/apis/api/1.0/user/register', {
+    ...params,
+    password: Md5.hashStr(signInData._value.password)
+  }).then( res => {
 
+    if (res.re_code === '0') {
+      signInData = {
+        phone_num: "",
+        phone_code: "",
+        password: "",
+        confirm: '',
+      };
+      ElMessage({
+        message: '注册成功',
+        type: 'success',
+      });
+      setTimeout(() => {
+          emits('getActiveName', 'login');
+      }, 500);
+    } else {
+      ElMessage({
+        message: res.msg || '注册失败',
+        type: 'error',
+      });
+    }
   });
 };
 </script>
