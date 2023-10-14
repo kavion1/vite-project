@@ -1,4 +1,6 @@
 import axios from "axios";
+import { useCookies } from "vue3-cookies";
+const { cookies } = useCookies();
 
 // axios.defaults.baseURL = ''  //正式
 // axios.defaults.baseURL = 'https://www.fastmock.site/mock/eba0dfae18afc7f633c011ee1f464a6a/Bill' //测试
@@ -11,7 +13,7 @@ axios.defaults.withCredentials = true;
 axios.defaults.timeout = 15000;
 axios.interceptors.request.use(
   (config: any) => {
-    config.headers['Authorization'] = 'Bearer ' + document.cookie.split('access_token=')[1]
+    config.headers['Authorization'] = 'Bearer ' + cookies.get('access_token')
     return config;
   },
   (error: any) => {
@@ -31,6 +33,42 @@ axios.interceptors.response.use(
     console.log('请求异常', error);
   }
 );
+
+axios.interceptors.request.use(
+  async (config) => {
+    const isAccessTokenExpired = checkAccessTokenExpiry(); // 自定义函数，检查access_token是否过期
+
+    if (isAccessTokenExpired) {
+      try {
+        const response = await axios.post('/apis/api/1.0/user/refresh_token', {
+          // cookies.set('')
+        });
+
+        const { access_token } = response.data;
+
+        config.headers.Authorization = `Bearer ${access_token}`;
+      } catch (error) {
+        console.error('刷新access_token失败:', error);
+      }
+    }
+
+    return config;
+  },
+  (error) => {
+    // 处理请求错误
+    console.error('请求拦截器发生错误:', error);
+    return Promise.reject(error);
+  }
+);
+
+function checkAccessTokenExpiry() {
+  const date = cookies.get('access_token_exp')
+  const accessTokenExp = new Date(date);
+  const currentTime = new Date();
+
+  return accessTokenExp.getTime() <= currentTime.getTime() + 600000;
+}
+
 export default {
   /**
    * @param {String} url 
