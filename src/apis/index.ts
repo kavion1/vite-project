@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // axios.defaults.baseURL = ''  //正式
-axios.defaults.baseURL = 'http://localhost:3000' //测试
+// axios.defaults.baseURL = 'https://www.fastmock.site/mock/eba0dfae18afc7f633c011ee1f464a6a/Bill' //测试
 
 //post请求头
 axios.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded;charset=UTF-8";
