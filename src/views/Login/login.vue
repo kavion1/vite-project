@@ -8,7 +8,7 @@
         <el-input type="password" v-model="loginData.password"  prefix-icon="Key" placeholder="请输入密码"></el-input>
       </el-form-item>
       <el-form-item class="login-form-item">
-        <el-button class="login-button" type="primary" @click="login(ruleFormRef)">登录</el-button>
+        <el-button class="login-button" type="primary" @click="handleLogin(ruleFormRef)">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -67,13 +67,14 @@ const loginRules = reactive<FormRules<LoginData>>({
 
 
 const handleLogin = async (formEl: FormInstance | undefined) => {
+  console.log('loginData', loginData._value)
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
       console.log('submit!')
-      // proxy?.$axios.post('/api/1.0/user/login', this.loginData).then( res => {
+      proxy?.$axios.post('/apis/api/1.0/user/login', loginData._value).then( res => {
 
-      // });
+      });
     } else {
       console.log('error submit!', fields)
     }

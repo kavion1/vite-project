@@ -19,7 +19,7 @@
       <el-input v-model="signInData.password" placeholder="请确认密码"></el-input>
     </el-form-item>
     <el-form-item class="login-form-item">
-        <el-button class="login-button" type="primary" @click="login">注册</el-button>
+        <el-button class="login-button" type="primary" @click="handleRegister">注册</el-button>
       </el-form-item>
   </el-form>
 </div>
@@ -27,14 +27,15 @@
 
 <script lang="ts" setup>
 import { ref, reactive, getCurrentInstance } from "vue";
+const { proxy } = getCurrentInstance() as any;
 
-interface signInData {
+interface SignInData {
 	phone_num: string;
 	phone_code: string;
 	password: string;
 }
 
-const signInData = ref<signInData>({
+const signInData = ref<SignInData>({
 	phone_num: "",
 	phone_code: "",
 	password: "",
@@ -56,7 +57,12 @@ const getCode = (FormRules: any) => {
 	});
 }
 
+const handleRegister = (signInData: SignInData) => {
+  console.log('shuang signInData', signInData)
+  proxy?.$axios.post('/apis/api/1.0/user/register', signInData).then( res => {
 
+  });
+};
 </script>
 
 <style scoped>
