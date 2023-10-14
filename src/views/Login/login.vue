@@ -16,12 +16,14 @@
 
 <script lang="ts" setup>
 import { ref, reactive, getCurrentInstance } from "vue";
+import { useRouter } from "vue-router";
 import type { FormInstance, FormRules } from 'element-plus';
-
+import { Md5 } from 'ts-md5/dist/md5';
+import { useCookies } from "vue3-cookies";
 const { proxy } = getCurrentInstance() as any;
 
 interface LoginData {
-	phone_num: string;
+	phone_num: number;
 	password: string;
 }
 
@@ -29,6 +31,10 @@ const loginData = ref<LoginData>({
 	phone_num: "",
 	password: "",
 });
+
+const md5 = new Md5();
+const router = useRouter();
+const { cookies } = useCookies();
 
 const ruleFormRef = ref<FormInstance>();
 
@@ -66,14 +72,27 @@ const loginRules = reactive<FormRules<LoginData>>({
 });
 
 
+
 const handleLogin = async (formEl: FormInstance | undefined) => {
   console.log('loginData', loginData._value)
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
       console.log('submit!')
-      proxy?.$axios.post('/apis/api/1.0/user/login', loginData._value).then( res => {
+      proxy?.$axios.post('/apis/api/1.0/user/login', { 
+        phone_num: +loginData._value.phone_num,
+        password: Md5.hashStr(loginData._value.password)}).then( res => {
 
+          if (res && res.re_code === '0') {
+            const { access_token = '', access_token_exp = '', refresh_token = '' } = res.data;
+            console.log('login success');
+            cookies.set('access_token', access_token);
+            cookies.set('access_token_exp', access_token_exp);
+            cookies.set('refresh_token', refresh_token);
+            router.push('/transaction_record');
+          } else {
+            console.log(res.msg);
+          }
       });
     } else {
       console.log('error submit!', fields)

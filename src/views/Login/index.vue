@@ -19,7 +19,7 @@
               </el-tab-pane>
                 <el-tab-pane label="注册" name="signIn">
                   <div style="margin-top: 20px">
-                    <SignIn />
+                    <SignIn @getActiveName="getActiveName"/>
                 </div>
                 </el-tab-pane>
             </el-tabs>
@@ -31,13 +31,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, defineComponent } from 'vue';
+import { ref, onMounted, defineComponent, watch, toRef } from 'vue';
 import SignIn from './signIn.vue';
 import Login from './login.vue';
 import HelloWorld from '../HelloWorld.vue';
 
 import type { TabsPaneContext } from 'element-plus'
-// import * as particlesJS from 'particles.js';
 
 interface LoginData {
   username: string;
@@ -64,7 +63,8 @@ const signInData = ref<signInData>({
   confirmPassword: "",
 });
 
-const activeName = ref('login');
+let activeName = ref('login');
+const activeNameRef = toRef(activeName)
 const loginRules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
@@ -80,20 +80,16 @@ onMounted(() => {
     console.log('particles.js loaded');
   });
 });
-const getCode = (FormRules: any) => {
-	FormRules.validateField("phone_num", (bool: boolean, b) => {
-		if (bool) {
-			countDown.value = 60;
-			const Time = setInterval(() => {
-				countDown.value = countDown.value - 1;
-				if (countDown.value == 0) {
-					clearTimeout(Time);
-				}
-			}, 1000);
-		}
-	});
-}
 
+watch(() => activeName, (newValue) => {
+  // 收到 receivedData 属性的变化时触发
+  console.log('receivedData 变化了:---', newValue);
+});
+
+const getActiveName = (data: string) => {
+  console.log('receivedData 变化了:', data);
+  activeName.value = data;
+};
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   console.log(tab, event)
