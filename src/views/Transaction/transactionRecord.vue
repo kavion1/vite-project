@@ -45,7 +45,7 @@
 					element-loading-text="加载中..."
 				>
 					<el-table-column type="selection" width="55"></el-table-column>
-					<el-table-column prop="id" label="账单号" width="180"></el-table-column>
+					<el-table-column prop="bill_number" label="账单号" width="180"></el-table-column>
 					<el-table-column prop="type" label="交易类型" width="180">
 						<template #default="scope">
 							<div>{{ Type.get(scope.row.type) }}</div>
@@ -94,7 +94,7 @@
 				</el-form>
 				<template #footer>
 					<span class="Footer_Button">
-						<el-checkbox v-model="ContinuousEntry" label="连续录入" size="large" v-show="!AddForm.id" />
+						<el-checkbox v-model="ContinuousEntry" label="连续录入" size="large" />
 						<el-button @click="dialogFormVisible = false">取消</el-button>
 						<el-button type="primary" @click="SubmitForm(ruleFormRef)">提交</el-button>
 					</span>
@@ -112,7 +112,7 @@ import ExcelJS from "exceljs";
 const { proxy } = getCurrentInstance() as any;
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
-	id: string; //账单号
+	bill_number: string; //账单号
 	type: string; //交易类型
 	amount: number | undefined; //资金
 	create_time: string; //时间
@@ -224,7 +224,8 @@ const ChechkForm = () => {
 		start_date: Date.parse(new Date(Tabelform.value.date[0])),
 		end_date: Date.parse(new Date(Tabelform.value.date[1])),
 		p: currentPage.value,
-		pz: pageSize.value,
+		// pz: pageSize.value,
+		pz: 10,
 	};
 	proxy.$axios
 		.get("/apis/api/1.0/bill/list", param)
@@ -255,7 +256,7 @@ const Export = () => {
 		end_date: Date.parse(new Date(Tabelform.value.date[1])),
 	};
 	proxy.$axios
-		.get("/apis/api/1.0/bill/list", param)
+		.get("/apis/api/1.0/bill/export", param)
 		.then((result: { data: { bills: any; total: any }; re_code: number }) => {
 			const { bills } = result.data;
 			if (result.re_code == 0) {
@@ -264,7 +265,7 @@ const Export = () => {
 				const columns = [
 					{
 						header: "账单号",
-						key: "id",
+						key: "bill_number",
 						width: 20,
 					},
 					{
@@ -292,6 +293,9 @@ const Export = () => {
 				// 数据行
 				bills.forEach((item: any) => {
 					const Lists = columns.map((o) => {
+						if (o.key == "type") {
+							item[o.key] = Type.get(item[o.key]);
+						}
 						return item[o.key];
 					});
 					sheet.addRow(Lists);
