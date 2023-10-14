@@ -68,9 +68,10 @@
 			</el-card>
 			<!-- 新增编辑 -->
 			<el-dialog v-model="dialogFormVisible" title="新增账单" @closed="CancelForm(ruleFormRef)" width="500px">
+				、
 				<el-form :model="AddForm" :rules="rules" ref="ruleFormRef">
 					<el-form-item label="账单类型" label-width="120px" prop="type">
-						<el-input v-model="AddForm.type" type="textarea"></el-input>
+						<el-input v-model="AddForm.type"></el-input>
 					</el-form-item>
 					<el-form-item label="账单金额" label-width="120px" prop="amount">
 						<el-input
