@@ -203,8 +203,8 @@ const ChechkForm = () => {
     start_date: Date.parse(new Date(Tabelform.value.date[0])),
     end_date: Date.parse(new Date(Tabelform.value.date[1])),
     p: currentPage.value,
-    // pz: pageSize.value,
-    pz: 5,
+    pz: pageSize.value,
+    // pz: 5,
   };
   proxy.$axios
     .get("/apis/api/1.0/bill/list", param)

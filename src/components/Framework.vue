@@ -6,7 +6,9 @@
 					<el-menu :router="true">
 						<el-sub-menu index="2">
 							<template #title>
-								<el-icon><message /></el-icon>
+								<el-icon>
+									<message />
+								</el-icon>
 								交易管理
 							</template>
 							<el-menu-item-group>
@@ -39,7 +41,8 @@
 		<div v-else>
 			<router-view />
 		</div>
-		<el-dialog v-model="dialogFormVisible" title="修改密码" @closed="CancelForm(ruleFormRef)" width="400px" center>
+		<el-dialog v-model="dialogFormVisible" title="修改密码" @closed="CancelForm(ruleFormRef)" width="400px" center
+			close-on-click-modal="false">
 			<el-form :model="PassWordForm" :rules="rules" ref="ruleFormRef">
 				<el-form-item label="手机号" label-width="120px" prop="phone_num">
 					<el-input v-model="PassWordForm.phone_num"></el-input>
@@ -67,11 +70,13 @@
 </template>
 
 <script setup lang="ts">
-import { ElButton } from "element-plus";
+import { ElButton, ElMessage } from "element-plus";
 import { FormInstance } from "element-plus/lib/components/form/index.js";
 import { FormRules } from "element-plus/lib/components/form/src/types.js";
+import { Md5 } from 'ts-md5'
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
+const md5 = new Md5()
 const ruleFormRef = ref<any>();
 interface PassWordType {
 	phone_num: string;
@@ -110,7 +115,20 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
 		if (valid) {
-			console.log("submit!", PassWordForm.value);
+			const params = { ...PassWordForm.value, password: Md5.hashStr(PassWordForm.value.password) }
+			proxy.$axios.post('/apis/api/1.0/user/change_password', params).then((result) => {
+				if (result.re_code == 0) {
+					ElMessage({
+						message: '修改成功',
+						type: 'success',
+					})
+					dialogFormVisible.value = false
+				} else {
+					ElMessage.error(result.msg)
+				}
+			}).catch((err) => {
+
+			});
 		} else {
 			console.log("error submit!", fields);
 		}
@@ -153,8 +171,7 @@ const getCode = (FormRules: any) => {
 </script>
 
 <style scoped>
-.layout {
-}
+.layout {}
 
 .el-aside {
 	/* background-color: #1F2937; */
@@ -172,18 +189,21 @@ const getCode = (FormRules: any) => {
 	height: calc(100vh - 80px);
 	overflow: auto;
 }
+
 .el-dropdown {
 	width: 100%;
 	height: 100%;
 	display: flex;
 	justify-content: end;
 }
+
 .Avatar {
 	display: flex;
 	gap: 10px;
 	align-items: center;
 	outline: none;
 }
+
 .CodePass {
 	display: grid;
 	grid-template-columns: 2fr 0.3fr;

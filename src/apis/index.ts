@@ -36,21 +36,21 @@ axios.interceptors.response.use(
 
 axios.interceptors.request.use(
   async (config) => {
-    const isAccessTokenExpired = checkAccessTokenExpiry(); // 自定义函数，检查access_token是否过期
+    // const isAccessTokenExpired = checkAccessTokenExpiry(); // 自定义函数，检查access_token是否过期
 
-    if (isAccessTokenExpired) {
-      try {
-        const response = await axios.post('/apis/api/1.0/user/refresh_token', {
-          // cookies.set('')
-        });
+    // if (isAccessTokenExpired) {
+    //   try {
+    //     const response = await axios.post('/apis/api/1.0/user/refresh_token', {
+    //       // cookies.set('')
+    //     });
 
-        const { access_token } = response.data;
+    //     const { access_token } = response.data;
 
-        config.headers.Authorization = `Bearer ${access_token}`;
-      } catch (error) {
-        console.error('刷新access_token失败:', error);
-      }
-    }
+    //     config.headers.Authorization = `Bearer ${access_token}`;
+    //   } catch (error) {
+    //     console.error('刷新access_token失败:', error);
+    //   }
+    // }
 
     return config;
   },
