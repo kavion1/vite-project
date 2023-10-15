@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElButton, ElMessage } from "element-plus";
+import { ElButton, ElMessage, MessageParamsWithType } from "element-plus";
 import { FormInstance } from "element-plus/lib/components/form/index.js";
 import { FormRules } from "element-plus/lib/components/form/src/types.js";
 import { Md5 } from 'ts-md5'
@@ -80,7 +80,6 @@ import { useCookies } from "vue3-cookies";
 
 const { cookies } = useCookies();
 
-const md5 = new Md5()
 const ruleFormRef = ref<any>();
 interface PassWordType {
 	phone_num: string;
@@ -95,12 +94,12 @@ const PassWordForm = ref<PassWordType>({
 const { proxy } = getCurrentInstance() as any;
 const router = useRouter();
 const dialogFormVisible = ref<boolean>(false);
-const authenticated = ref<string[]>(["transactionRecord"]);
+const authenticated = ref<any[]>(["transactionRecord"]);
 const rules = reactive<FormRules<PassWordType>>({
 	phone_num: [
 		{ required: true, message: "手机号不能为空！", trigger: "change" },
 		{
-			validator(rule, value, callback) {
+			validator(_rule: any, value, callback) {
 				const regx = /^(?:(?:\+|00)86)?1\d{10}$/;
 				if (regx.test(value)) {
 					callback();
@@ -120,7 +119,7 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	await formrules.validate((valid, fields) => {
 		if (valid) {
 			const params = { ...PassWordForm.value, password: Md5.hashStr(PassWordForm.value.password) }
-			proxy.$axios.post('/apis/api/1.0/user/change_password', params).then((result) => {
+			proxy.$axios.post('/apis/api/1.0/user/change_password', params).then((result: { re_code: number; msg: MessageParamsWithType; }) => {
 				if (result.re_code == 0) {
 					ElMessage({
 						message: '修改成功',
@@ -130,7 +129,7 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 				} else {
 					ElMessage.error(result.msg)
 				}
-			}).catch((err) => {
+			}).catch((_err: any) => {
 
 			});
 		} else {
@@ -147,22 +146,22 @@ const handleCommand = (command: string | number | object) => {
 		dialogFormVisible.value = true;
 	}
 	if (command == "Logout") {
-    proxy.$axios.delete('/apis/api/1.0/user/logout').then((res: any) => {
-      console.log('shuang res', res);
-      if (res.re_code === '0') {
-        ElMessage({
-          message: '退出登录成功',
-          type: 'success',
-        });
-        setTimeout(() => {
-          cookies.remove('access_token', '');
-          cookies.remove('access_token_exp', '');
-          cookies.remove('refresh_token', '');
-          router.push('/login');
-        }, 200);
-        
-      }
-    })
+		proxy.$axios.delete('/apis/api/1.0/user/logout').then((res: any) => {
+			console.log('shuang res', res);
+			if (res.re_code === '0') {
+				ElMessage({
+					message: '退出登录成功',
+					type: 'success',
+				});
+				setTimeout(() => {
+					cookies.remove('access_token', '');
+					cookies.remove('access_token_exp', '');
+					cookies.remove('refresh_token', '');
+					router.push('/login');
+				}, 200);
+
+			}
+		})
 	}
 };
 

@@ -98,7 +98,7 @@ interface tableData {
   remarks: string; //备注
 }
 interface Tabelform {
-  date: Date[] | string[];
+  date: string[];
   start_date: Date | undefined; //开始时间
   end_date: Date | undefined; //结束时间
   p: string; //第几页;
@@ -195,8 +195,8 @@ const ChechkForm = () => {
   Tabelloading.value = true;
 
   const param = {
-    start_date: Date.parse(new Date(Tabelform.value.date[0])),
-    end_date: Date.parse(new Date(Tabelform.value.date[1])),
+    start_date: Date.parse(new Date(Tabelform.value.date[0]) as any),
+    end_date: Date.parse(new Date(Tabelform.value.date[1]) as any),
     p: currentPage.value,
     pz: pageSize.value,
   };
@@ -225,8 +225,8 @@ const Reset = () => {
 //导出
 const Export = () => {
   const param = {
-    start_date: Date.parse(new Date(Tabelform.value.date[0])),
-    end_date: Date.parse(new Date(Tabelform.value.date[1])),
+    start_date: Date.parse(new Date(Tabelform.value.date[0]) as any),
+    end_date: Date.parse(new Date(Tabelform.value.date[1]) as any),
   };
   proxy.$axios
     .get("/apis/api/1.0/bill/export", param)

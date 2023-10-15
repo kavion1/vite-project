@@ -4,22 +4,17 @@
       <el-main>
         <div class="login-container">
           <el-card class="login-card" shadow="hover">
-            <el-tabs
-              v-model="activeName"
-              type="card"
-              @tab-click="handleClick"
-              :stretch=true
-            >
+            <el-tabs v-model="activeName" type="card" @tab-click="handleClick" :stretch=true>
               <el-tab-pane label="登录" name="login">
                 <div style="margin-top: 20px">
                   <Login />
                 </div>
               </el-tab-pane>
-                <el-tab-pane label="注册" name="signIn">
-                  <div style="margin-top: 20px">
-                    <SignIn @getActiveName="getActiveName"/>
+              <el-tab-pane label="注册" name="signIn">
+                <div style="margin-top: 20px">
+                  <SignIn @getActiveName="getActiveName" />
                 </div>
-                </el-tab-pane>
+              </el-tab-pane>
             </el-tabs>
           </el-card>
         </div>
@@ -29,20 +24,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, toRef } from 'vue';
+import { ref, } from 'vue';
 import SignIn from './signIn.vue';
 import Login from './login.vue';
 
 import type { TabsPaneContext } from 'element-plus'
 
 let activeName = ref('login');
-const activeNameRef = toRef(activeName)
 
 const getActiveName = (data: string) => {
   activeName.value = data;
 };
 
-const handleClick = (tab: TabsPaneContext, event: Event) => {
+const handleClick = (tab: TabsPaneContext, _event: Event) => {
   console.log('tab.props.name', tab.props.name)
 }
 
@@ -63,5 +57,4 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
   border: 1px solid #ebeef5;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
-
 </style>

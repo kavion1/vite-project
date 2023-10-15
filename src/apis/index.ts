@@ -1,5 +1,4 @@
 import axios from "axios";
-import { da } from "element-plus/lib/locale/index.js";
 import { useCookies } from "vue3-cookies";
 const { cookies } = useCookies();
 
@@ -67,7 +66,7 @@ function checkAccessTokenExpiry() {
   if (!date) {
     return false
   }
-  
+
   const accessTokenExp = new Date(date);
   const currentTime = new Date();
 
