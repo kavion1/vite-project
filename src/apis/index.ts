@@ -1,4 +1,5 @@
 import axios from "axios";
+import { da } from "element-plus/lib/locale/index.js";
 import { useCookies } from "vue3-cookies";
 const { cookies } = useCookies();
 
@@ -36,21 +37,21 @@ axios.interceptors.response.use(
 
 axios.interceptors.request.use(
   async (config) => {
-    // const isAccessTokenExpired = checkAccessTokenExpiry(); // 自定义函数，检查access_token是否过期
+    const isAccessTokenExpired = checkAccessTokenExpiry(); // 自定义函数，检查access_token是否过期
 
-    // if (isAccessTokenExpired) {
-    //   try {
-    //     const response = await axios.post('/apis/api/1.0/user/refresh_token', {
-    //       // cookies.set('')
-    //     });
+    if (isAccessTokenExpired) {
+      try {
+        const response = await axios.post('/apis/api/1.0/user/refresh_token', {
+          refresh_token: cookies.get('refresh_token'),
+        });
 
-    //     const { access_token } = response.data;
+        const { access_token } = response.data;
 
-    //     config.headers.Authorization = `Bearer ${access_token}`;
-    //   } catch (error) {
-    //     console.error('刷新access_token失败:', error);
-    //   }
-    // }
+        config.headers.Authorization = `Bearer ${access_token}`;
+      } catch (error) {
+        console.error('刷新access_token失败:', error);
+      }
+    }
 
     return config;
   },
@@ -63,6 +64,10 @@ axios.interceptors.request.use(
 
 function checkAccessTokenExpiry() {
   const date = cookies.get('access_token_exp')
+  if (!date) {
+    return false
+  }
+  
   const accessTokenExp = new Date(date);
   const currentTime = new Date();
 
