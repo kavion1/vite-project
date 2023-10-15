@@ -89,7 +89,10 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
             cookies.set('refresh_token', refresh_token);
             router.push('/transaction_record');
           } else {
-            console.log(res.msg);
+            ElMessage({
+              message: res.msg || '登录失败',
+              type: 'error',
+            });
           }
       });
     } else {
