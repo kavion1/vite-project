@@ -193,18 +193,12 @@ const CancelForm = (formrules: FormInstance | undefined) => {
 //查询
 const ChechkForm = () => {
   Tabelloading.value = true;
-  // const param = {
-  // 	start_date: dayjs(Tabelform.value.date[0]).format("YYYY-MM-DD HH:mm:ss"),
-  // 	end_date: dayjs(Tabelform.value.date[1]).format("YYYY-MM-DD HH:mm:ss"),
-  // 	p: currentPage.value,
-  // 	pz: pageSize.value,
-  // };
+
   const param = {
     start_date: Date.parse(new Date(Tabelform.value.date[0])),
     end_date: Date.parse(new Date(Tabelform.value.date[1])),
     p: currentPage.value,
     pz: pageSize.value,
-    // pz: 5,
   };
   proxy.$axios
     .get("/apis/api/1.0/bill/list", param)
@@ -314,11 +308,15 @@ const Export = () => {
             } as Partial<ExcelJS.Style>;
           });
         }
-        console.log('total', total + 2, columns.length,)
         sheet.mergeCells(total + 2, 1, total + 2, columns.length);
-        // ...合并的单元格被链接起来了
         sheet.getCell(`B${total + 2}`).value = '期间总支出：' + total_amount;
-
+        // 剧中
+        sheet.getCell(`B${total + 2}`).alignment = { vertical: 'middle', horizontal: 'center' };
+        sheet.getCell(`B${total + 2}`).font = {
+          name: '宋体',
+          family: 4,
+          size: 16,
+        };
         workbook.xlsx.writeBuffer().then((buffer) => {
           let file = new Blob([buffer], {
             type: "application/octet-stream",
