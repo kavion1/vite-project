@@ -44,8 +44,10 @@ axios.interceptors.request.use(
           refresh_token: cookies.get('refresh_token'),
         });
 
-        const { access_token } = response.data;
-
+        const { access_token, access_token_exp, refresh_token } = response.data;
+        cookies.set('access_token', access_token);
+        cookies.set('access_token_exp', access_token_exp);
+        cookies.set('refresh_token', refresh_token);
         config.headers.Authorization = `Bearer ${access_token}`;
       } catch (error) {
         console.error('刷新access_token失败:', error);

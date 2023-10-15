@@ -22,7 +22,7 @@
 				<el-header>
 					<el-dropdown @command="handleCommand">
 						<div class="Avatar">
-							<span>奈何</span>
+							<span>{{account}}</span>
 							<el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
 						</div>
 						<template #dropdown>
@@ -114,6 +114,7 @@ const rules = reactive<FormRules<PassWordType>>({
 	password: [{ required: true, message: "密码不能为空！", trigger: "change" }],
 });
 const countDown = ref<number>(0);
+const account = ref<string>(cookies.get('account') || '润润');
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
