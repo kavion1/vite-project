@@ -33,7 +33,7 @@
         <el-table :data="tableData" height="500px" @selection-change="handleSelectionChange" highlight-current-row="true"
           stripe="true" v-loading="Tabelloading" element-loading-text="加载中...">
           <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column prop="bill_number" label="账单号" width="210"></el-table-column>
+          <el-table-column prop="bill_number" label="账单号" width="210" show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="type" label="交易类型" width="180">
             <template #default="scope">
               <div>{{ Type.get(scope.row.type) }}</div>
