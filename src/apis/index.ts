@@ -105,5 +105,21 @@ export default {
           reject(err)
         })
     })
-  }
+  },
+
+  delete(url: string, data: any) {
+    return new Promise((resolve, reject) => {
+      axios({
+        method: 'delete',
+        url,
+        params: data,
+      })
+        .then((res: any) => {
+          resolve(res.data)
+        })
+        .catch((err: any) => {
+          reject(err)
+        })
+    })
+  },
 };

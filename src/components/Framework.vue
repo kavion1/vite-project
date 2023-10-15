@@ -76,6 +76,10 @@ import { FormRules } from "element-plus/lib/components/form/src/types.js";
 import { Md5 } from 'ts-md5'
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
+import { useCookies } from "vue3-cookies";
+
+const { cookies } = useCookies();
+
 const md5 = new Md5()
 const ruleFormRef = ref<any>();
 interface PassWordType {
@@ -143,6 +147,22 @@ const handleCommand = (command: string | number | object) => {
 		dialogFormVisible.value = true;
 	}
 	if (command == "Logout") {
+    proxy.$axios.delete('/apis/api/1.0/user/logout').then((res: any) => {
+      console.log('shuang res', res);
+      if (res.re_code === '0') {
+        ElMessage({
+          message: '退出登录成功',
+          type: 'success',
+        });
+        setTimeout(() => {
+          cookies.remove('access_token', '');
+          cookies.remove('access_token_exp', '');
+          cookies.remove('refresh_token', '');
+          router.push('/login');
+        }, 200);
+        
+      }
+    })
 	}
 };
 
