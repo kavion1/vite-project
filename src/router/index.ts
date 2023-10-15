@@ -10,9 +10,9 @@ const { cookies } = useCookies();
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: '/',  
-    redirect: '/login',  
-  }, 
+    path: '/',
+    redirect: '/login',
+  },
   {
     path: '/login',
     name: 'login',
@@ -33,7 +33,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+router.beforeEach((to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
   const token: string | null = cookies.get('access_token');
 
   if (to.meta.requiresAuth && !token) {

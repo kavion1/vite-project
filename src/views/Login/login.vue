@@ -4,8 +4,8 @@
       <el-form-item class="login-form-item" prop="phone_num">
         <el-input v-model="loginData.phone_num" prefix-icon="UserFilled" placeholder="请输入手机号"></el-input>
       </el-form-item>
-      <el-form-item  class="login-form-item" prop="password">
-        <el-input type="password" v-model="loginData.password"  prefix-icon="Key" placeholder="请输入密码"></el-input>
+      <el-form-item class="login-form-item" prop="password">
+        <el-input type="password" v-model="loginData.password" prefix-icon="Key" placeholder="请输入密码"></el-input>
       </el-form-item>
       <el-form-item class="login-form-item">
         <el-button class="login-button" type="primary" @click="handleLogin(ruleFormRef)">登录</el-button>
@@ -17,19 +17,20 @@
 <script lang="ts" setup>
 import { ref, reactive, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
-import type { FormInstance, FormRules } from 'element-plus';
-import { Md5 } from 'ts-md5/dist/md5';
+import { ElMessage, FormInstance, FormRules } from 'element-plus';
+import { Md5 } from 'ts-md5'
+
 import { useCookies } from "vue3-cookies";
 const { proxy } = getCurrentInstance() as any;
 
 interface LoginData {
-	phone_num: number;
-	password: string;
+  phone_num: number | string;
+  password: string;
 }
 
 const loginData = ref<LoginData>({
-	phone_num: "",
-	password: "",
+  phone_num: "",
+  password: "",
 });
 
 const router = useRouter();
@@ -37,7 +38,7 @@ const { cookies } = useCookies();
 
 const ruleFormRef = ref<FormInstance>();
 
-const validatePhone = (rule: any, value: string, callback: any) => {
+const validatePhone = (_rule: any, value: string, callback: any) => {
   console.log('shuang value', value);
   const pattern = /^1[0-9]{10}$/;
   if (!value) {
@@ -57,7 +58,7 @@ const loginRules = reactive<FormRules<LoginData>>({
       trigger: 'blur',
     },
     {
-      validate: validatePhone,
+      validator: validatePhone,
       trigger: 'change',
     }
   ],
@@ -76,23 +77,24 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      proxy?.$axios.post('/apis/api/1.0/user/login', { 
-        account: loginData._value.phone_num,
-        password: Md5.hashStr(loginData._value.password)}).then( res => {
+      proxy?.$axios.post('/apis/api/1.0/user/login', {
+        account: +loginData.value.phone_num,
+        password: Md5.hashStr(loginData.value.password)
+      }).then((res: { re_code: string; data: { access_token?: "" | undefined; access_token_exp?: "" | undefined; refresh_token?: "" | undefined; }; msg: any; }) => {
 
-          if (res && res.re_code === '0') {
-            const { access_token = '', access_token_exp = '', refresh_token = '' } = res.data;
-            console.log('login success');
-            cookies.set('access_token', access_token);
-            cookies.set('access_token_exp', access_token_exp);
-            cookies.set('refresh_token', refresh_token);
-            router.push('/transaction_record');
-          } else {
-            ElMessage({
-              message: res.msg || '登录失败',
-              type: 'error',
-            });
-          }
+        if (res && res.re_code === '0') {
+          const { access_token = '', access_token_exp = '', refresh_token = '' } = res.data;
+          console.log('login success');
+          cookies.set('access_token', access_token);
+          cookies.set('access_token_exp', access_token_exp);
+          cookies.set('refresh_token', refresh_token);
+          router.push('/transaction_record');
+        } else {
+          ElMessage({
+            message: res.msg || '登录失败',
+            type: 'error',
+          });
+        }
       });
     } else {
       console.log('error submit!', fields)

@@ -68,7 +68,7 @@ function checkAccessTokenExpiry() {
   if (!date) {
     return false
   }
-  
+
   const accessTokenExp = new Date(date);
   const currentTime = new Date();
 

@@ -19,36 +19,36 @@
         <el-input v-model="signInData.confirm" placeholder="请确认密码"></el-input>
       </el-form-item>
       <el-form-item class="login-form-item">
-          <el-button class="login-button" type="primary" @click="handleRegister(ruleFormRef)">注册</el-button>
-        </el-form-item>
+        <el-button class="login-button" type="primary" @click="handleRegister(ruleFormRef)">注册</el-button>
+      </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, getCurrentInstance, defineProps, inject, watch } from "vue";
+import { ref, reactive, getCurrentInstance, } from "vue";
 const { proxy } = getCurrentInstance() as any;
 import { Md5 } from "ts-md5";
-import type { FormInstance, FormRules } from 'element-plus';
+import { ElMessage, FormInstance, FormRules } from 'element-plus';
 
 interface SignInData {
-	phone_num: string;
-	phone_code: string;
-	password: string;
-  confirm: 'string'
+  phone_num: string;
+  phone_code: string;
+  password: string;
+  confirm: string
 
 }
 
 let signInData = ref<SignInData>({
-	phone_num: "",
-	phone_code: "",
-	password: "",
+  phone_num: "",
+  phone_code: "",
+  password: "",
   confirm: ''
 });
 
 const ruleFormRef = ref<FormInstance>();
 
-const signInRules = reactive<FormRules<LoginData>>({
+const signInRules = reactive<FormRules<any>>({
   phone_num: [
     {
       required: true,
@@ -86,26 +86,26 @@ const countDown = ref<number>(0);
 const emits = defineEmits(['getActiveName']);
 
 const getCode = (FormRules: any) => {
-	FormRules.validateField("phone_num", (bool: boolean, b) => {
-		if (bool) {
-			proxy.$axios
-				?.get("/apis/api/1.0/user/smsCode", { phone_num: signInData.value.phone_num })
-				.then((result: any) => {
-					if (result.re_code == 0) {
-						countDown.value = 60;
-						const Time = setInterval(() => {
-							countDown.value = countDown.value - 1;
-							if (countDown.value == 0) {
-								clearTimeout(Time);
-							}
-						}, 1000);
-					}
-				})
-				.catch((err: any) => {
-					console.log("验证码错误", err);
-				});
-		}
-	});
+  FormRules.validateField("phone_num", (bool: boolean, _b: any) => {
+    if (bool) {
+      proxy.$axios
+        ?.get("/apis/api/1.0/user/smsCode", { phone_num: signInData.value.phone_num })
+        .then((result: any) => {
+          if (result.re_code == 0) {
+            countDown.value = 60;
+            const Time = setInterval(() => {
+              countDown.value = countDown.value - 1;
+              if (countDown.value == 0) {
+                clearTimeout(Time);
+              }
+            }, 1000);
+          }
+        })
+        .catch((err: any) => {
+          console.log("验证码错误", err);
+        });
+    }
+  });
 }
 
 const handleRegister = async (formEl: FormInstance | undefined) => {
@@ -113,17 +113,17 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       const params = {
-        phone_num: signInData._value.phone_num,
-        phone_code: signInData._value.password,
-        password: signInData._value.password,
+        phone_num: signInData.value.phone_num,
+        phone_code: signInData.value.password,
+        password: signInData.value.password,
       }
       proxy?.$axios.post('/apis/api/1.0/user/register', {
         ...params,
-        password: Md5.hashStr(signInData._value.password)
-      }).then( res => {
+        password: Md5.hashStr(signInData.value.password)
+      }).then((res: { re_code: string; msg: any; }) => {
 
         if (res.re_code === '0') {
-          signInData = {
+          signInData.value = {
             phone_num: "",
             phone_code: "",
             password: "",
@@ -134,7 +134,7 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
             type: 'success',
           });
           setTimeout(() => {
-              emits('getActiveName', 'login');
+            emits('getActiveName', 'login');
           }, 500);
         } else {
           ElMessage({
@@ -153,9 +153,9 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
 
 <style scoped>
 .CodePass {
-	display: grid;
-	grid-template-columns: 3fr 0.3fr;
-	gap: 10px;
+  display: grid;
+  grid-template-columns: 3fr 0.3fr;
+  gap: 10px;
 }
 
 .login-button {
