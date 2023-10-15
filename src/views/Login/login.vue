@@ -88,6 +88,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
           cookies.set('access_token', access_token);
           cookies.set('access_token_exp', access_token_exp);
           cookies.set('refresh_token', refresh_token);
+          cookies.set('account', loginData.value.phone_num || '润润');
           router.push('/transaction_record');
         } else {
           ElMessage({
