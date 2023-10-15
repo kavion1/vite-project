@@ -74,13 +74,11 @@ const loginRules = reactive<FormRules<LoginData>>({
 
 
 const handleLogin = async (formEl: FormInstance | undefined) => {
-  console.log('loginData', loginData._value)
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
       proxy?.$axios.post('/apis/api/1.0/user/login', { 
-        phone_num: +loginData._value.phone_num,
+        account: +loginData._value.phone_num,
         password: Md5.hashStr(loginData._value.password)}).then( res => {
 
           if (res && res.re_code === '0') {

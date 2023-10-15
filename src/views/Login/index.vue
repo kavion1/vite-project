@@ -1,14 +1,12 @@
 <template>
   <div class="common-layout">
     <el-container>
-      <div id="particles-js"></div>
       <el-main>
         <div class="login-container">
           <el-card class="login-card" shadow="hover">
             <el-tabs
               v-model="activeName"
               type="card"
-              class="tabs"
               @tab-click="handleClick"
               :stretch=true
             >
@@ -31,74 +29,23 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, defineComponent, watch, toRef } from 'vue';
+import { ref, toRef } from 'vue';
 import SignIn from './signIn.vue';
 import Login from './login.vue';
-import HelloWorld from '../HelloWorld.vue';
 
 import type { TabsPaneContext } from 'element-plus'
 
-interface LoginData {
-  username: string;
-  password: string;
-}
-
-interface signInData {
-	phone_num: string;
-	phone_code: string;
-	password: string;
-  confirmPassword: string;
-
-}
-
-const loginData = ref<LoginData>({
-  username: '',
-  password: '',
-});
-
-const signInData = ref<signInData>({
-	phone_num: "",
-	phone_code: "",
-	password: "",
-  confirmPassword: "",
-});
-
 let activeName = ref('login');
 const activeNameRef = toRef(activeName)
-const loginRules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-  ],
-};
-const countDown = ref<number>(0);
-
-onMounted(() => {
-  (window as any).particlesJS.load('particles-js', '../../../particles.json', function () {
-    console.log('particles.js loaded');
-  });
-});
-
-watch(() => activeName, (newValue) => {
-  // 收到 receivedData 属性的变化时触发
-  console.log('receivedData 变化了:---', newValue);
-});
 
 const getActiveName = (data: string) => {
-  console.log('receivedData 变化了:', data);
   activeName.value = data;
 };
 
 const handleClick = (tab: TabsPaneContext, event: Event) => {
-  console.log(tab, event)
+  console.log('tab.props.name', tab.props.name)
 }
 
-const login = () => {
-  // 处理登录逻辑
-  console.log('登录');
-};
 </script>
 
 <style scoped>
@@ -117,25 +64,4 @@ const login = () => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
-.login-form-item {
-  padding: 10px;
-}
-
-.login-button {
-  width: 100vw;
-}
-
-#particles-js {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.CodePass {
-	display: grid;
-	grid-template-columns: 2fr 0.3fr;
-	gap: 10px;
-}
 </style>
