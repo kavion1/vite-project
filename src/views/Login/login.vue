@@ -32,7 +32,6 @@ const loginData = ref<LoginData>({
 	password: "",
 });
 
-const md5 = new Md5();
 const router = useRouter();
 const { cookies } = useCookies();
 
@@ -78,7 +77,7 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       proxy?.$axios.post('/apis/api/1.0/user/login', { 
-        account: +loginData._value.phone_num,
+        account: loginData._value.phone_num,
         password: Md5.hashStr(loginData._value.password)}).then( res => {
 
           if (res && res.re_code === '0') {

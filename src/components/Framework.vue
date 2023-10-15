@@ -80,7 +80,6 @@ import { useCookies } from "vue3-cookies";
 
 const { cookies } = useCookies();
 
-const md5 = new Md5()
 const ruleFormRef = ref<any>();
 interface PassWordType {
 	phone_num: string;
