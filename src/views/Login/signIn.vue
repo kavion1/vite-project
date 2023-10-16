@@ -122,7 +122,7 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
 		if (valid) {
 			const params = {
 				phone_num: signInData.value.phone_num,
-				phone_code: signInData.value.password,
+				phone_code: Number(signInData.value.phone_code),
 				password: signInData.value.password,
 			};
 			proxy?.$axios
