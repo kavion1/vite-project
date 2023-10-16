@@ -159,11 +159,13 @@ const Tabelform = ref<Tabelform>({
 });
 const AddForm = ref<{
 	id: number | undefined;
+	bill_number: string;
 	type: string; //交易类型
 	amount: number | undefined; //资金
 	remarks: string; //备注
 }>({
 	id: undefined,
+	bill_number: "",
 	type: "",
 	amount: undefined,
 	remarks: "",
@@ -216,7 +218,7 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 	await formrules.validate((valid, fields) => {
 		if (valid) {
 			proxy?.$axios
-				.post(AddForm.value.id ? "" : "/apis/api/1.0/bill/create", AddForm.value)
+				.post(AddForm.value.id ? "/apis/api/1.0/bill/modify" : "/apis/api/1.0/bill/create", AddForm.value)
 				.then((result: { re_code: any }) => {
 					if (result.re_code == 0) {
 						ChechkForm();
@@ -245,7 +247,7 @@ const handleEdite = (row: tableData) => {
 const handledelete = (row: tableData) => {
 	const { id } = row;
 	proxy?.$axios
-		.post("/apis/api/1.0/bill/create", { id })
+		.post("/apis/api/1.0/bill/delete", { id })
 		.then((result: { re_code: number }) => {
 			if (result.re_code == 0) {
 				ElMessage({
@@ -260,7 +262,7 @@ const handledelete = (row: tableData) => {
 		});
 };
 const CancelForm = (formrules: FormInstance | undefined) => {
-	AddForm.value = { id: undefined, type: "", amount: undefined, remarks: "" };
+	AddForm.value = { id: undefined, bill_number: "", type: "", amount: undefined, remarks: "" };
 	formrules?.clearValidate();
 };
 //查询
