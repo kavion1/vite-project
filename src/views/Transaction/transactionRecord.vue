@@ -54,7 +54,7 @@
 					<el-table-column prop="amount" label="资金" width="100"></el-table-column>
 					<el-table-column prop="create_time" label="交易时间" width="170"></el-table-column>
 					<el-table-column prop="remarks" label="备注" show-overflow-tooltip="true"></el-table-column>
-					<el-table-column fixed="right" label="Operations" width="120">
+					<el-table-column fixed="right" label="操作" width="120">
 						<template #default="scope">
 							<el-button link type="danger" size="small" @click="handleEdite(scope.row)">修改</el-button>
 							<el-popconfirm title="是否删除" @confirm="handledelete" cancel-button-type="danger">
@@ -339,7 +339,7 @@ const Export = () => {
 				bills.forEach((item: any) => {
 					const Lists = columns.map((o) => {
 						if (o.key == "type") {
-							item[o.key] = Type.get(item[o.key]);
+							item[o.key] = Type[item[o.key]];
 						}
 						return item[o.key];
 					});
