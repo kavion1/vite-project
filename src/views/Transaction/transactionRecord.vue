@@ -14,7 +14,7 @@
 							<el-date-picker
 								:disabled-date="DisabledDate"
 								v-model="Tabelform.date"
-								type="datetimerange"
+								type="daterange"
 								start-placeholder="开始日期"
 								end-placeholder="结束日期"
 							/>
@@ -48,16 +48,20 @@
 					<el-table-column prop="bill_number" label="账单号" width="210" show-overflow-tooltip="true"></el-table-column>
 					<el-table-column prop="type" label="交易类型" width="180">
 						<template #default="scope">
-							<div>{{ Type.get(scope.row.type) }}</div>
+							<div>{{ Type[scope.row.type] }}</div>
 						</template>
 					</el-table-column>
 					<el-table-column prop="amount" label="资金" width="100"></el-table-column>
 					<el-table-column prop="create_time" label="交易时间" width="170"></el-table-column>
 					<el-table-column prop="remarks" label="备注" show-overflow-tooltip="true"></el-table-column>
 					<el-table-column fixed="right" label="Operations" width="120">
-						<template #default>
-							<el-button link type="danger" size="small" @click="handleEdite">修改</el-button>
-							<el-button link type="danger" size="small" @click="handledelete">删除</el-button>
+						<template #default="scope">
+							<el-button link type="danger" size="small" @click="handleEdite(scope.row)">修改</el-button>
+							<el-popconfirm title="是否删除" @confirm="handledelete" cancel-button-type="danger">
+								<template #reference>
+									<el-button link type="danger" size="small">删除</el-button>
+								</template>
+							</el-popconfirm>
 						</template>
 					</el-table-column>
 					<template v-slot:empty>
@@ -81,9 +85,8 @@
 				、
 				<el-form :model="AddForm" :rules="rules" ref="ruleFormRef">
 					<el-form-item label="账单类型" label-width="120px" prop="type">
-						<el-radio-group v-model="AddForm.type">
-							<el-radio label="CONSUMPTION" size="large">消费</el-radio>
-							<el-radio label="TRANSFEROUT" size="large">转出</el-radio>
+						<el-radio-group v-model="AddForm.type" v-for="i in Object.keys(Type)">
+							<el-radio :label="i" size="large">{{ Type[i] }}</el-radio>
 						</el-radio-group>
 					</el-form-item>
 					<el-form-item label="账单金额" label-width="120px" prop="amount">
@@ -95,12 +98,12 @@
 						></el-input>
 					</el-form-item>
 					<el-form-item label="备注" label-width="120px" prop="remarks">
-						<el-input v-model="AddForm.remarks" type="textarea"></el-input>
+						<el-input v-model="AddForm.remarks" type="textarea" :disabled="!!AddForm.id"></el-input>
 					</el-form-item>
 				</el-form>
 				<template #footer>
 					<span class="Footer_Button">
-						<el-checkbox v-model="ContinuousEntry" label="连续录入" size="large" />
+						<el-checkbox v-model="ContinuousEntry" label="连续录入" size="large" v-if="!AddForm.id" />
 						<el-button @click="dialogFormVisible = false">取消</el-button>
 						<el-button type="primary" @click="SubmitForm(ruleFormRef)">提交</el-button>
 					</span>
@@ -113,11 +116,13 @@
 <script lang="ts" setup>
 import dayjs from "dayjs";
 import { ref, reactive, getCurrentInstance, onMounted } from "vue";
-import type { FormInstance, FormRules } from "element-plus";
+import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import ExcelJS from "exceljs";
+import { deepCloneObj } from "../../utils";
 const { proxy } = getCurrentInstance() as any;
 // 账单号，资金，备注，时间，交易类型
 interface tableData {
+	id: number;
 	bill_number: string; //账单号
 	type: string; //交易类型
 	amount: number | undefined; //资金
@@ -131,14 +136,13 @@ interface Tabelform {
 	p: string; //第几页;
 }
 interface AddForm {
+	id: number | undefined;
 	type: string; //账单类型
 	amount: string; //账单金额
 	remarks: string; //账单备注
 }
-const Type = new Map([
-	["CONSUMPTION", "消费"],
-	["TRANSFEROUT", "转出"],
-]);
+const Type: any = { CONSUMPTION: "消费", EXPORT: "汇出", IMPORT: "汇出" };
+
 const tableData = ref<tableData[]>([]);
 const Tabelform = ref<Tabelform>({
 	date: [
@@ -150,10 +154,12 @@ const Tabelform = ref<Tabelform>({
 	p: "",
 });
 const AddForm = ref<{
+	id: number | undefined;
 	type: string; //交易类型
 	amount: number | undefined; //资金
 	remarks: string; //备注
 }>({
+	id: undefined,
 	type: "",
 	amount: undefined,
 	remarks: "",
@@ -168,7 +174,20 @@ const SelectRows = ref<tableData[]>([]);
 const TabelTotal = ref<number>(0);
 const rules = reactive<FormRules<AddForm>>({
 	type: [{ required: true, message: "账单类型不能为空！", trigger: "blur" }],
-	amount: [{ required: true, message: "账单金额不能为空！", trigger: "blur" }],
+	amount: [
+		{ required: true, message: "账单金额不能为空！", trigger: "blur" },
+		{
+			validator(_rule, value, callback) {
+				const regx = /^\d+$/;
+				if (value && regx.test(value)) {
+					callback();
+				} else {
+					callback(new Error("请输入数字"));
+				}
+			},
+			trigger: "blur",
+		},
+	],
 });
 const ContinuousEntry = ref<boolean>(false);
 //当前页
@@ -187,17 +206,18 @@ const handleSelectionChange = (val: tableData[]) => {
 const DisabledDate = (date: Date) => {
 	return dayjs(date) >= dayjs(new Date());
 };
+//新增/修改
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
 		if (valid) {
 			proxy?.$axios
-				.post("/apis/api/1.0/bill/create", AddForm.value)
+				.post(AddForm.value.id ? "" : "/apis/api/1.0/bill/create", AddForm.value)
 				.then((result: { re_code: any }) => {
 					if (result.re_code == 0) {
 						ChechkForm();
 
-						if (ContinuousEntry.value) {
+						if (ContinuousEntry.value && !AddForm.value.id) {
 							formrules?.resetFields();
 						} else {
 							dialogFormVisible.value = false;
@@ -212,9 +232,29 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 		}
 	});
 };
-
+const handleEdite = (row: tableData) => {
+	AddForm.value = deepCloneObj(row);
+	dialogFormVisible.value = true;
+};
+const handledelete = (row: tableData) => {
+	const { id } = row;
+	proxy?.$axios
+		.post("/apis/api/1.0/bill/create", { id })
+		.then((result: { re_code: number }) => {
+			if (result.re_code == 0) {
+				ElMessage({
+					message: "删除成功",
+					type: "success",
+				});
+				ChechkForm();
+			}
+		})
+		.catch((err: any) => {
+			console.log("删除失败:", err);
+		});
+};
 const CancelForm = (formrules: FormInstance | undefined) => {
-	AddForm.value = { type: "", amount: undefined, remarks: "" };
+	AddForm.value = { id: undefined, type: "", amount: undefined, remarks: "" };
 	formrules?.clearValidate();
 };
 //查询
