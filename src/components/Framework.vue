@@ -22,7 +22,7 @@
 				<el-header>
 					<el-dropdown @command="handleCommand">
 						<div class="Avatar">
-							<span>{{ account }}</span>
+							<span>{{  cookies.get('account') || '润润' }}</span>
 							<el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
 						</div>
 						<template #dropdown>
@@ -56,8 +56,8 @@
 				<el-form-item label="手机验证码" label-width="120px" prop="phone_code">
 					<div class="CodePass">
 						<el-input v-model="PassWordForm.phone_code" clearable></el-input>
-						<el-button @click="getCode(ruleFormRef)" :disabled="countDown != 0">
-							{{ countDown == 0 ? "获取验证码" : countDown + "后重新获取" }}
+						<el-button @click="getCode(ruleFormRef)" :disabled="countDown != 0 || noPhone">
+							{{ countDown == 0 ? "获取验证码" : countDown + "s 秒后重新获取" }}
 						</el-button>
 					</div>
 				</el-form-item>
@@ -106,6 +106,7 @@ const rules = reactive<FormRules<PassWordType>>({
 			validator(_rule: any, value, callback) {
 				const regx = /^(?:(?:\+|00)86)?1\d{10}$/;
 				if (regx.test(value)) {
+          noPhone.value = false;
 					callback();
 				} else {
 					callback(new Error("请输入正确的手机号"));
@@ -130,12 +131,8 @@ const rules = reactive<FormRules<PassWordType>>({
 		},
 	],
 });
+let noPhone = ref<boolean>(true);
 const countDown = ref<number>(0);
-let account = reactive<string>('润润');
-
-onMounted(async () => {
-  account = await cookies.get('account');
-});
 
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
@@ -171,7 +168,6 @@ const handleCommand = (command: string | number | object) => {
 	}
 	if (command == "Logout") {
 		proxy.$axios.delete("/apis/api/1.0/user/logout").then((res: any) => {
-			console.log("shuang res", res);
 			if (res.re_code === "0") {
 				ElMessage({
 					message: "退出登录成功",
@@ -181,6 +177,7 @@ const handleCommand = (command: string | number | object) => {
 					cookies.remove("access_token", "");
 					cookies.remove("access_token_exp", "");
 					cookies.remove("refresh_token", "");
+					cookies.remove("account", "");
 					router.push("/login");
 				}, 200);
 			}
@@ -191,22 +188,36 @@ const handleCommand = (command: string | number | object) => {
 const getCode = (FormRules: any) => {
 	FormRules.validateField("phone_num", (bool: boolean) => {
 		if (bool) {
+      countDown.value = 60;
+
 			proxy.$axios
 				?.get("/apis/api/1.0/user/smsCode", { phone_num: PassWordForm.value.phone_num })
 				.then((result: any) => {
 					if (result.re_code == 0) {
-						countDown.value = 60;
-						const Time = setInterval(() => {
-							countDown.value = countDown.value - 1;
-							if (countDown.value == 0) {
-								clearTimeout(Time);
-							}
-						}, 1000);
-					}
+            ElMessage({
+							message: "发送成功",
+							type: "success",
+						});
+					} else {
+            ElMessage({
+							message: result.msg || '发送失败',
+							type: "error",
+						});
+          }
 				})
 				.catch((err: any) => {
+          ElMessage({
+							message: err || '发送失败',
+							type: "error",
+						});
 					console.log("修改密码验证码错误", err);
 				});
+        const Time = setInterval(() => {
+          countDown.value = countDown.value - 1;
+          if (countDown.value == 0) {
+            clearTimeout(Time);
+          }
+        }, 1000);
 		}
 	});
 };

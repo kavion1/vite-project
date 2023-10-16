@@ -7,8 +7,8 @@
 			<el-form-item prop="phone_code">
 				<div class="CodePass">
 					<el-input v-model="signInData.phone_code" clearable placeholder="请输入验证码"></el-input>
-					<el-button @click="getCode(ruleFormRef)" :disabled="countDown != 0">
-						{{ countDown == 0 ? "获取验证码" : countDown + "后重新获取" }}
+					<el-button @click="getCode(ruleFormRef)" :disabled="countDown != 0 || noPhone">
+						{{ countDown == 0 ? "获取验证码" : countDown + "s 后重新获取" }}
 					</el-button>
 				</div>
 			</el-form-item>
@@ -45,7 +45,20 @@ let signInData = ref<SignInData>({
 	confirm: "",
 });
 
+let noPhone = ref<boolean>(true);
 const ruleFormRef = ref<FormInstance>();
+
+const validatePhone = (_rule: any, value: string, callback: any) => {
+	const pattern = /^1[0-9]{10}$/;
+	if (!value) {
+		callback(new Error("电话号码不能为空"));
+	} else if (!pattern.test(value)) {
+		callback(new Error("请输入正确的电话号码"));
+	} else {
+    noPhone.value = false;
+		callback();
+	}
+};
 
 const signInRules = reactive<FormRules<any>>({
 	phone_num: [
@@ -54,6 +67,10 @@ const signInRules = reactive<FormRules<any>>({
 			message: "请输入手机号",
 			trigger: "blur",
 		},
+    {
+			validator: validatePhone,
+			trigger: "blur",
+    }
 	],
 	phone_code: [
 		{
@@ -96,22 +113,36 @@ const emits = defineEmits(["getActiveName"]);
 const getCode = (FormRules: any) => {
 	FormRules.validateField("phone_num", (bool: boolean, _b: any) => {
 		if (bool) {
+      countDown.value = 60;
 			proxy.$axios
 				?.get("/apis/api/1.0/user/smsCode", { phone_num: signInData.value.phone_num })
 				.then((result: any) => {
 					if (result.re_code == 0) {
-						countDown.value = 60;
-						const Time = setInterval(() => {
-							countDown.value = countDown.value - 1;
-							if (countDown.value == 0) {
-								clearTimeout(Time);
-							}
-						}, 1000);
-					}
+            ElMessage({
+							message: "发送成功",
+							type: "success",
+						});
+					} else {
+            ElMessage({
+							message: result.msg || '发送失败',
+							type: "error",
+						});
+          }
 				})
 				.catch((err: any) => {
+          ElMessage({
+							message: err || '发送失败',
+							type: "error",
+						});
 					console.log("验证码错误", err);
 				});
+
+        const Time = setInterval(() => {
+          countDown.value = countDown.value - 1;
+          if (countDown.value == 0) {
+            clearTimeout(Time);
+          }
+        }, 1000);
 		}
 	});
 };
