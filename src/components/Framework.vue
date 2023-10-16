@@ -22,7 +22,7 @@
 				<el-header>
 					<el-dropdown @command="handleCommand">
 						<div class="Avatar">
-							<span>{{account}}</span>
+							<span>{{ account }}</span>
 							<el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
 						</div>
 						<template #dropdown>
@@ -41,8 +41,14 @@
 		<div v-else>
 			<router-view />
 		</div>
-		<el-dialog v-model="dialogFormVisible" title="修改密码" @closed="CancelForm(ruleFormRef)" width="400px" center
-			close-on-click-modal="false">
+		<el-dialog
+			v-model="dialogFormVisible"
+			title="修改密码"
+			@closed="CancelForm(ruleFormRef)"
+			width="400px"
+			center
+			close-on-click-modal="false"
+		>
 			<el-form :model="PassWordForm" :rules="rules" ref="ruleFormRef">
 				<el-form-item label="手机号" label-width="120px" prop="phone_num">
 					<el-input v-model="PassWordForm.phone_num"></el-input>
@@ -73,7 +79,7 @@
 import { ElButton, ElMessage, MessageParamsWithType } from "element-plus";
 import { FormInstance } from "element-plus/lib/components/form/index.js";
 import { FormRules } from "element-plus/lib/components/form/src/types.js";
-import { Md5 } from 'ts-md5'
+import { Md5 } from "ts-md5";
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";
 import { useCookies } from "vue3-cookies";
@@ -111,28 +117,41 @@ const rules = reactive<FormRules<PassWordType>>({
 		},
 	],
 	phone_code: [{ required: true, message: "验证码不能为空！", trigger: "change" }],
-	password: [{ required: true, message: "密码不能为空！", trigger: "change" }],
+	password: [
+		{ required: true, message: "密码不能为空！", trigger: "change" },
+		{
+			validator(_rule, value, callback) {
+				const regx = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
+				if (value && regx.test(value)) {
+					callback();
+				} else {
+					callback("请输入长度至少为六位且需包含至少一个字母和一个数字！");
+				}
+			},
+		},
+	],
 });
 const countDown = ref<number>(0);
-const account = ref<string>(cookies.get('account') || '润润');
+const account = ref<string>(cookies.get("account") || "润润");
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
 		if (valid) {
-			const params = { ...PassWordForm.value, password: Md5.hashStr(PassWordForm.value.password) }
-			proxy.$axios.post('/apis/api/1.0/user/change_password', params).then((result: { re_code: number; msg: MessageParamsWithType; }) => {
-				if (result.re_code == 0) {
-					ElMessage({
-						message: '修改成功',
-						type: 'success',
-					})
-					dialogFormVisible.value = false
-				} else {
-					ElMessage.error(result.msg)
-				}
-			}).catch((_err: any) => {
-
-			});
+			const params = { ...PassWordForm.value, password: Md5.hashStr(PassWordForm.value.password) };
+			proxy.$axios
+				.post("/apis/api/1.0/user/change_password", params)
+				.then((result: { re_code: number; msg: MessageParamsWithType }) => {
+					if (result.re_code == 0) {
+						ElMessage({
+							message: "修改成功",
+							type: "success",
+						});
+						dialogFormVisible.value = false;
+					} else {
+						ElMessage.error(result.msg);
+					}
+				})
+				.catch((_err: any) => {});
 		} else {
 			console.log("error submit!", fields);
 		}
@@ -147,22 +166,21 @@ const handleCommand = (command: string | number | object) => {
 		dialogFormVisible.value = true;
 	}
 	if (command == "Logout") {
-		proxy.$axios.delete('/apis/api/1.0/user/logout').then((res: any) => {
-			console.log('shuang res', res);
-			if (res.re_code === '0') {
+		proxy.$axios.delete("/apis/api/1.0/user/logout").then((res: any) => {
+			console.log("shuang res", res);
+			if (res.re_code === "0") {
 				ElMessage({
-					message: '退出登录成功',
-					type: 'success',
+					message: "退出登录成功",
+					type: "success",
 				});
 				setTimeout(() => {
-					cookies.remove('access_token', '');
-					cookies.remove('access_token_exp', '');
-					cookies.remove('refresh_token', '');
-					router.push('/login');
+					cookies.remove("access_token", "");
+					cookies.remove("access_token_exp", "");
+					cookies.remove("refresh_token", "");
+					router.push("/login");
 				}, 200);
-
 			}
-		})
+		});
 	}
 };
 
@@ -191,7 +209,8 @@ const getCode = (FormRules: any) => {
 </script>
 
 <style scoped>
-.layout {}
+.layout {
+}
 
 .el-aside {
 	/* background-color: #1F2937; */
