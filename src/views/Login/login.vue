@@ -16,8 +16,8 @@
 
 <script lang="ts" setup>
 import { ref, reactive, getCurrentInstance } from "vue";
+import { FormInstance, FormRules } from 'element-plus';
 import { useRouter } from "vue-router";
-import { ElMessage, FormInstance, FormRules } from "element-plus";
 import { Md5 } from "ts-md5";
 
 import { useCookies } from "vue3-cookies";
@@ -93,7 +93,13 @@ const handleLogin = async (formEl: FormInstance | undefined) => {
 							cookies.set("access_token_exp", access_token_exp);
 							cookies.set("refresh_token", refresh_token);
 							cookies.set("account", loginData.value.phone_num || "润润");
-							router.push("/transaction_record");
+              setTimeout(() => {
+                ElMessage({
+                  message: res.msg || "登录成功",
+                  type: 'success',
+                });
+  							router.push("/transaction_record");
+              }, 200);
 						} else {
 							ElMessage({
 								message: res.msg || "登录失败",

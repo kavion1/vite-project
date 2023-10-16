@@ -77,8 +77,7 @@
 
 <script setup lang="ts">
 import { ElButton, ElMessage, MessageParamsWithType } from "element-plus";
-import { FormInstance } from "element-plus/lib/components/form/index.js";
-import { FormRules } from "element-plus/lib/components/form/src/types.js";
+import { FormInstance, FormRules } from 'element-plus';
 import { Md5 } from "ts-md5";
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRouter } from "vue-router";

@@ -29,7 +29,7 @@
 import { ref, reactive, getCurrentInstance } from "vue";
 const { proxy } = getCurrentInstance() as any;
 import { Md5 } from "ts-md5";
-import { ElMessage, FormInstance, FormRules } from "element-plus";
+import { FormInstance, FormRules } from "element-plus";
 
 interface SignInData {
 	phone_num: string;
