@@ -184,11 +184,11 @@ const rules = reactive<FormRules<AddForm>>({
 		{ required: true, message: "账单金额不能为空！", trigger: "blur" },
 		{
 			validator(_rule, value, callback) {
-				const regx = /^\d+$/;
+				const regx = /^\d+(\.\d{1,2})?$/;
 				if (value && regx.test(value)) {
 					callback();
 				} else {
-					callback(new Error("请输入数字"));
+					callback(new Error("请输入整数且最多两位小数"));
 				}
 			},
 			trigger: "blur",
