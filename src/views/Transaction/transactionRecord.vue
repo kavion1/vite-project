@@ -102,7 +102,7 @@
 						></el-input>
 					</el-form-item>
 					<el-form-item label="备注" label-width="120px" prop="remarks">
-						<el-input v-model="AddForm.remarks" type="textarea" :disabled="!!AddForm.id"></el-input>
+						<el-input v-model="AddForm.remarks" type="textarea"></el-input>
 					</el-form-item>
 				</el-form>
 				<template #footer>
