@@ -379,7 +379,7 @@ const Export = () => {
 					});
 				}
 				sheet.mergeCells(total + 2, 1, total + 2, columns.length);
-				sheet.getCell(`B${total + 2}`).value = "期间总支出：" + total_amount;
+				sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_amount};期间总收入：${total_amount}`;
 				// 剧中
 				sheet.getCell(`B${total + 2}`).alignment = { vertical: "middle", horizontal: "center" };
 				sheet.getCell(`B${total + 2}`).font = {
