@@ -39,7 +39,6 @@ const { cookies } = useCookies();
 const ruleFormRef = ref<FormInstance>();
 
 const validatePhone = (_rule: any, value: string, callback: any) => {
-	console.log("shuang value", value);
 	const pattern = /^1[0-9]{10}$/;
 	if (!value) {
 		callback(new Error("电话号码不能为空"));
