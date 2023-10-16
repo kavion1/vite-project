@@ -1,8 +1,8 @@
 {
-  "routes": [
+  "redirects": [
     {
-      "src": "/apis/(.*)",
-      "dest": "http://124.223.48.238:5000"
+      "source": "/apis",
+      "destination": "http://124.223.48.238:5000"
     }
   ]
 }
