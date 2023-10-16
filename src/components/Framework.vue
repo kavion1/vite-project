@@ -76,10 +76,9 @@
 </template>
 
 <script setup lang="ts">
-import { ElButton, ElMessage, MessageParamsWithType } from "element-plus";
-import { FormInstance, FormRules } from 'element-plus';
+import { FormInstance, FormRules, MessageParamsWithType } from 'element-plus';
 import { Md5 } from "ts-md5";
-import { reactive, ref, getCurrentInstance } from "vue";
+import { reactive, ref, getCurrentInstance, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useCookies } from "vue3-cookies";
 
@@ -132,7 +131,12 @@ const rules = reactive<FormRules<PassWordType>>({
 	],
 });
 const countDown = ref<number>(0);
-const account = ref<string>(cookies.get("account") || "润润");
+let account = reactive<string>('润润');
+
+onMounted(async () => {
+  account = await cookies.get('account');
+});
+
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
 	await formrules.validate((valid, fields) => {
