@@ -125,7 +125,7 @@ interface AddForm {
 	remarks: string; //账单备注
 }
 const Type: any = { CONSUMPTION: "消费", EXPORT: "汇出", IMPORT: "汇入" };
-const AccountType: any = { IN: "-", OUT: "+" };
+const AccountType: any = { IN: "+", OUT: "-" };
 const tableData = ref<tableData[]>([]);
 const Tabelform = ref<Tabelform>({
 	date: [
