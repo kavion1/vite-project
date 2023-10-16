@@ -304,113 +304,121 @@ const Export = () => {
 	};
 	proxy.$axios
 		.get("/apis/api/1.0/bill/export", param)
-		.then((result: { data: { bills: any; total: any; account: string; total_amount: string }; re_code: number }) => {
-			const { bills, total_amount, account, total } = result.data;
-			if (result.re_code == 0) {
-				const workbook = new ExcelJS.Workbook();
-				const SheetName = `${account} (${dayjs(Tabelform.value.date[0]).format("YYYYMMDD")}-${dayjs(
-					Tabelform.value.date[1]
-				).format("YYYYMMDD")})`;
-				const sheet = workbook.addWorksheet(SheetName);
+		.then(
+			(result: {
+				data: { bills: any; total: any; account: string; total_amount: string; total_out: string };
+				re_code: number;
+			}) => {
+				const { bills, total_amount, total_out, account, total } = result.data;
+				if (result.re_code == 0) {
+					const workbook = new ExcelJS.Workbook();
+					const SheetName = `${account} (${dayjs(Tabelform.value.date[0]).format("YYYYMMDD")}-${dayjs(
+						Tabelform.value.date[1]
+					).format("YYYYMMDD")})`;
+					const sheet = workbook.addWorksheet(SheetName);
 
-				const columns = [
-					{
-						header: "序号",
-						key: "index",
-						width: 10,
-					},
-					{
-						header: "账单号",
-						key: "bill_number",
-						width: 20,
-					},
-					{
-						header: "交易类型",
-						key: "type",
-						width: 20,
-					},
-					{
-						header: "资金",
-						key: "amount",
-						width: 20,
-					},
-					{
-						header: "交易时间",
-						key: "create_time",
-						width: 20,
-					},
-					{
-						header: "备注",
-						key: "remarks",
-						width: 10,
-					},
-				];
+					const columns = [
+						{
+							header: "序号",
+							key: "index",
+							width: 10,
+						},
+						{
+							header: "账单号",
+							key: "bill_number",
+							width: 20,
+						},
+						{
+							header: "交易类型",
+							key: "type",
+							width: 20,
+						},
+						{
+							header: "资金",
+							key: "amount",
+							width: 20,
+						},
+						{
+							header: "交易时间",
+							key: "create_time",
+							width: 20,
+						},
+						{
+							header: "备注",
+							key: "remarks",
+							width: 10,
+						},
+					];
 
-				sheet.columns = columns;
-				// 数据行
-				bills.forEach((item: any, index: any) => {
-					const Lists = columns.map((o) => {
-						if (o.key == "type") {
-							item[o.key] = Type[item[o.key]];
-						}
+					sheet.columns = columns;
+					// 数据行
+					bills.forEach((item: any, index: any) => {
+						const Lists = columns.map((o) => {
+							if (o.key == "type") {
+								item[o.key] = Type[item[o.key]];
+							}
+							if (o.key == "amount") {
+								item[o.key] = AccountType[item.direction] + item[o.key];
+							}
 
-						return item[o.key];
+							return item[o.key];
+						});
+						Lists.unshift(index + 1);
+						sheet.addRow(Lists);
 					});
-					Lists.unshift(index + 1);
-					sheet.addRow(Lists);
-				});
 
-				// 表头样式
-				const excelBaseStyle = {
-					font: {
-						size: 15,
-						bold: true,
-					},
-					fill: {
-						type: "pattern",
-						pattern: "solid",
-						fgColor: { argb: "808080" },
-					},
-					border: {
-						top: { style: "thin", color: { argb: "9e9e9e" } },
-						left: { style: "thin", color: { argb: "9e9e9e" } },
-						bottom: { style: "thin", color: { argb: "9e9e9e" } },
-						right: { style: "thin", color: { argb: "9e9e9e" } },
-					},
-				};
+					// 表头样式
+					const excelBaseStyle = {
+						font: {
+							size: 15,
+							bold: true,
+						},
+						fill: {
+							type: "pattern",
+							pattern: "solid",
+							fgColor: { argb: "808080" },
+						},
+						border: {
+							top: { style: "thin", color: { argb: "9e9e9e" } },
+							left: { style: "thin", color: { argb: "9e9e9e" } },
+							bottom: { style: "thin", color: { argb: "9e9e9e" } },
+							right: { style: "thin", color: { argb: "9e9e9e" } },
+						},
+					};
 
-				const headerRow = sheet.getRow(1);
-				headerRow.eachCell((cell) => {
-					cell.style = excelBaseStyle as Partial<ExcelJS.Style>;
-				});
-				for (let i = 0; i < columns.length; i++) {
-					const line = sheet.getColumn(i + 1);
-					line.eachCell((cell) => {
-						cell.style = {
-							alignment: { vertical: "middle", horizontal: "center", wrapText: true },
-						} as Partial<ExcelJS.Style>;
+					const headerRow = sheet.getRow(1);
+					headerRow.eachCell((cell) => {
+						cell.style = excelBaseStyle as Partial<ExcelJS.Style>;
+					});
+					for (let i = 0; i < columns.length; i++) {
+						const line = sheet.getColumn(i + 1);
+						line.eachCell((cell) => {
+							cell.style = {
+								alignment: { vertical: "middle", horizontal: "center", wrapText: true },
+							} as Partial<ExcelJS.Style>;
+						});
+					}
+					sheet.mergeCells(total + 2, 1, total + 2, columns.length);
+					sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_amount}；期间总收入：${total_out}；`;
+					// 剧中
+					sheet.getCell(`B${total + 2}`).alignment = { vertical: "middle", horizontal: "center" };
+					sheet.getCell(`B${total + 2}`).font = {
+						name: "宋体",
+						family: 4,
+						size: 16,
+					};
+					workbook.xlsx.writeBuffer().then((buffer) => {
+						let file = new Blob([buffer], {
+							type: "application/octet-stream",
+						});
+						const downloadLink = document.createElement("a");
+						downloadLink.href = URL.createObjectURL(file);
+						downloadLink.download = SheetName + ".xlsx";
+						downloadLink.click();
 					});
 				}
-				sheet.mergeCells(total + 2, 1, total + 2, columns.length);
-				sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_amount}；期间总收入：${total_amount}；`;
-				// 剧中
-				sheet.getCell(`B${total + 2}`).alignment = { vertical: "middle", horizontal: "center" };
-				sheet.getCell(`B${total + 2}`).font = {
-					name: "宋体",
-					family: 4,
-					size: 16,
-				};
-				workbook.xlsx.writeBuffer().then((buffer) => {
-					let file = new Blob([buffer], {
-						type: "application/octet-stream",
-					});
-					const downloadLink = document.createElement("a");
-					downloadLink.href = URL.createObjectURL(file);
-					downloadLink.download = SheetName + ".xlsx";
-					downloadLink.click();
-				});
 			}
-		})
+		)
 		.catch((err: any) => {
 			console.log("err", err);
 		});
