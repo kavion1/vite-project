@@ -116,9 +116,9 @@ const rules = reactive<FormRules<PassWordType>>({
 			trigger: "blur",
 		},
 	],
-	phone_code: [{ required: true, message: "验证码不能为空！", trigger: "change" }],
+	phone_code: [{ required: true, message: "验证码不能为空！", trigger: "blur" }],
 	password: [
-		{ required: true, message: "密码不能为空！", trigger: "change" },
+		{ required: true, message: "密码不能为空！", trigger: "blur" },
 		{
 			validator(_rule, value, callback) {
 				const regx = /^(?=.*[a-zA-Z])(?=.*\d).{6,}$/;
@@ -128,6 +128,7 @@ const rules = reactive<FormRules<PassWordType>>({
 					callback("请输入长度至少为六位且需包含至少一个字母和一个数字！");
 				}
 			},
+			trigger: "blur",
 		},
 	],
 });
