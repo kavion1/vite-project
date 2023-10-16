@@ -7,6 +7,7 @@ const { cookies } = useCookies();
 
 //post请求头
 axios.defaults.headers.post["Content-Type"] = "application/json";
+axios.defaults.headers.delete["Content-Type"] = "application/json";
 //允许跨域携带cookie信息
 axios.defaults.withCredentials = true;
 //设置超时
@@ -84,9 +85,11 @@ export default {
   post(url: string, data: any) {
     return new Promise((resolve, reject) => {
       axios({
+
         method: 'post',
         url,
         data: data,
+
       })
         .then((res: any) => {
           resolve(res.data)
@@ -118,7 +121,7 @@ export default {
       axios({
         method: 'delete',
         url,
-        params: data,
+        data: data,
       })
         .then((res: any) => {
           resolve(res.data)

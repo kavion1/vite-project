@@ -11,13 +11,8 @@
 					<!-- 列表查询条件 -->
 					<el-form :inline="true" :model="Tabelform" class="SearchForm" label-width="100px">
 						<el-form-item label="交易日期">
-							<el-date-picker
-								:disabled-date="DisabledDate"
-								v-model="Tabelform.date"
-								type="daterange"
-								start-placeholder="开始日期"
-								end-placeholder="结束日期"
-							/>
+							<el-date-picker :disabled-date="DisabledDate" v-model="Tabelform.date" type="daterange"
+								start-placeholder="开始日期" end-placeholder="结束日期" />
 						</el-form-item>
 					</el-form>
 				</div>
@@ -35,15 +30,8 @@
 		<div class="Content">
 			<!-- 列表 -->
 			<el-card shadow="always">
-				<el-table
-					:data="tableData"
-					height="500px"
-					@selection-change="handleSelectionChange"
-					highlight-current-row="true"
-					stripe="true"
-					v-loading="Tabelloading"
-					element-loading-text="加载中..."
-				>
+				<el-table :data="tableData" height="500px" @selection-change="handleSelectionChange" highlight-current-row="true"
+					stripe="true" v-loading="Tabelloading" element-loading-text="加载中...">
 					<el-table-column type="index" width="55"></el-table-column>
 					<el-table-column prop="bill_number" label="账单号" width="210" show-overflow-tooltip="true"></el-table-column>
 					<el-table-column prop="type" label="交易类型" width="180">
@@ -61,7 +49,7 @@
 					<el-table-column fixed="right" label="操作" width="120">
 						<template #default="scope">
 							<el-button link type="danger" size="small" @click="handleEdite(scope.row)">修改</el-button>
-							<el-popconfirm title="是否删除" @confirm="handledelete" cancel-button-type="danger">
+							<el-popconfirm title="是否删除" @confirm="handledelete(scope.row)" cancel-button-type="danger">
 								<template #reference>
 									<el-button link type="danger" size="small">删除</el-button>
 								</template>
@@ -73,15 +61,9 @@
 					</template>
 				</el-table>
 				<div class="Content_Foot">
-					<el-pagination
-						@current-change="handleCurrentChange"
-						@size-change="handleSizeChange"
-						v-model:page-size="pageSize"
-						v-model:current-page="currentPage"
-						background="#ffffff"
-						:total="TabelTotal"
-						layout="total, sizes, prev, pager, next, jumper"
-					></el-pagination>
+					<el-pagination @current-change="handleCurrentChange" @size-change="handleSizeChange"
+						v-model:page-size="pageSize" v-model:current-page="currentPage" background="#ffffff" :total="TabelTotal"
+						layout="total, sizes, prev, pager, next, jumper"></el-pagination>
 				</div>
 			</el-card>
 			<!-- 新增编辑 -->
@@ -94,12 +76,9 @@
 						</el-radio-group>
 					</el-form-item>
 					<el-form-item label="账单金额" label-width="120px" prop="amount">
-						<el-input
-							v-model="AddForm.amount"
+						<el-input v-model="AddForm.amount"
 							:formatter="(value: any) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-							:parser="(value: any) => value.replace(/\$\s?|(,*)/g, '')"
-							clearable
-						></el-input>
+							:parser="(value: any) => value.replace(/\$\s?|(,*)/g, '')" clearable></el-input>
 					</el-form-item>
 					<el-form-item label="备注" label-width="120px" prop="remarks">
 						<el-input v-model="AddForm.remarks" type="textarea"></el-input>
@@ -120,7 +99,7 @@
 <script lang="ts" setup>
 import dayjs from "dayjs";
 import { ref, reactive, getCurrentInstance, onMounted } from "vue";
-import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import { type FormInstance, type FormRules } from "element-plus";
 import ExcelJS from "exceljs";
 import { deepCloneObj } from "../../utils";
 const { proxy } = getCurrentInstance() as any;
@@ -145,8 +124,8 @@ interface AddForm {
 	amount: string; //账单金额
 	remarks: string; //账单备注
 }
-const Type: any = { CONSUMPTION: "消费", EXPORT: "汇出", IMPORT: "汇出" };
-const AccountType: any = { IN: "+", OUT: "+" };
+const Type: any = { CONSUMPTION: "消费", EXPORT: "汇出", IMPORT: "汇入" };
+const AccountType: any = { IN: "-", OUT: "+" };
 const tableData = ref<tableData[]>([]);
 const Tabelform = ref<Tabelform>({
 	date: [
@@ -247,13 +226,10 @@ const handleEdite = (row: tableData) => {
 const handledelete = (row: tableData) => {
 	const { id } = row;
 	proxy?.$axios
-		.post("/apis/api/1.0/bill/delete", { id })
+		.delete("/apis/api/1.0/bill/delete", { id })
 		.then((result: { re_code: number }) => {
 			if (result.re_code == 0) {
-				ElMessage({
-					message: "删除成功",
-					type: "success",
-				});
+
 				ChechkForm();
 			}
 		})
@@ -306,10 +282,10 @@ const Export = () => {
 		.get("/apis/api/1.0/bill/export", param)
 		.then(
 			(result: {
-				data: { bills: any; total: any; account: string; total_amount: string; total_out: string };
+				data: { bills: any; total: any; account: string; total_in: string; total_out: string };
 				re_code: number;
 			}) => {
-				const { bills, total_amount, total_out, account, total } = result.data;
+				const { bills, total_in, total_out, account, total } = result.data;
 				if (result.re_code == 0) {
 					const workbook = new ExcelJS.Workbook();
 					const SheetName = `${account} (${dayjs(Tabelform.value.date[0]).format("YYYYMMDD")}-${dayjs(
@@ -399,7 +375,7 @@ const Export = () => {
 						});
 					}
 					sheet.mergeCells(total + 2, 1, total + 2, columns.length);
-					sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_amount}；期间总收入：${total_out}；`;
+					sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_in}；期间总收入：${total_out}；`;
 					// 剧中
 					sheet.getCell(`B${total + 2}`).alignment = { vertical: "middle", horizontal: "center" };
 					sheet.getCell(`B${total + 2}`).font = {
