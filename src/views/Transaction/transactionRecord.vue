@@ -232,10 +232,12 @@ const SubmitForm = async (formrules: FormInstance | undefined) => {
 		}
 	});
 };
+
 const handleEdite = (row: tableData) => {
 	AddForm.value = deepCloneObj(row);
 	dialogFormVisible.value = true;
 };
+//删除
 const handledelete = (row: tableData) => {
 	const { id } = row;
 	proxy?.$axios
@@ -286,7 +288,6 @@ const Reset = () => {
 		dayjs(new Date().setHours(0, 0, 0, 0)).subtract(1, "months").format("YYYY-MM-DD HH:mm:ss"),
 		dayjs(new Date().setHours(23, 59, 59, 59)).format("YYYY-MM-DD HH:mm:ss"),
 	];
-
 	ChechkForm();
 };
 //导出
