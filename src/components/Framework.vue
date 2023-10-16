@@ -22,7 +22,7 @@
 				<el-header>
 					<el-dropdown @command="handleCommand">
 						<div class="Avatar">
-							<span>{{ account }}</span>
+							<span>{{  cookies.get('account') || '润润' }}</span>
 							<el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" />
 						</div>
 						<template #dropdown>
@@ -133,11 +133,6 @@ const rules = reactive<FormRules<PassWordType>>({
 });
 let noPhone = ref<boolean>(true);
 const countDown = ref<number>(0);
-let account = reactive<string>('润润');
-
-onMounted(async () => {
-  account = await cookies.get('account');
-});
 
 const SubmitForm = async (formrules: FormInstance | undefined) => {
 	if (!formrules) return;
