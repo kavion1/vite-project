@@ -44,14 +44,18 @@
 					v-loading="Tabelloading"
 					element-loading-text="加载中..."
 				>
-					<el-table-column type="selection" width="55"></el-table-column>
+					<el-table-column type="index" width="55"></el-table-column>
 					<el-table-column prop="bill_number" label="账单号" width="210" show-overflow-tooltip="true"></el-table-column>
 					<el-table-column prop="type" label="交易类型" width="180">
 						<template #default="scope">
 							<div>{{ Type[scope.row.type] }}</div>
 						</template>
 					</el-table-column>
-					<el-table-column prop="amount" label="资金" width="100"></el-table-column>
+					<el-table-column prop="amount" label="资金" width="100">
+						<template #default="scope">
+							<div>{{ AccountType[scope.row.direction] + scope.row.amount }}</div>
+						</template>
+					</el-table-column>
 					<el-table-column prop="create_time" label="交易时间" width="170"></el-table-column>
 					<el-table-column prop="remarks" label="备注" show-overflow-tooltip="true"></el-table-column>
 					<el-table-column fixed="right" label="操作" width="120">
@@ -142,7 +146,7 @@ interface AddForm {
 	remarks: string; //账单备注
 }
 const Type: any = { CONSUMPTION: "消费", EXPORT: "汇出", IMPORT: "汇出" };
-
+const AccountType: any = { IN: "+", OUT: "+" };
 const tableData = ref<tableData[]>([]);
 const Tabelform = ref<Tabelform>({
 	date: [
@@ -309,6 +313,11 @@ const Export = () => {
 
 				const columns = [
 					{
+						header: "序号",
+						key: "index",
+						width: 10,
+					},
+					{
 						header: "账单号",
 						key: "bill_number",
 						width: 20,
@@ -337,13 +346,15 @@ const Export = () => {
 
 				sheet.columns = columns;
 				// 数据行
-				bills.forEach((item: any) => {
+				bills.forEach((item: any, index: any) => {
 					const Lists = columns.map((o) => {
 						if (o.key == "type") {
 							item[o.key] = Type[item[o.key]];
 						}
+
 						return item[o.key];
 					});
+					Lists.unshift(index + 1);
 					sheet.addRow(Lists);
 				});
 
@@ -379,7 +390,7 @@ const Export = () => {
 					});
 				}
 				sheet.mergeCells(total + 2, 1, total + 2, columns.length);
-				sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_amount};期间总收入：${total_amount}`;
+				sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_amount}；期间总收入：${total_amount}；`;
 				// 剧中
 				sheet.getCell(`B${total + 2}`).alignment = { vertical: "middle", horizontal: "center" };
 				sheet.getCell(`B${total + 2}`).font = {
@@ -393,7 +404,7 @@ const Export = () => {
 					});
 					const downloadLink = document.createElement("a");
 					downloadLink.href = URL.createObjectURL(file);
-					downloadLink.download = SheetName + ".xls";
+					downloadLink.download = SheetName + ".xlsx";
 					downloadLink.click();
 				});
 			}
