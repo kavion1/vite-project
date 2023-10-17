@@ -11,8 +11,13 @@
 					<!-- 列表查询条件 -->
 					<el-form :inline="true" :model="Tabelform" class="SearchForm" label-width="100px">
 						<el-form-item label="交易日期">
-							<el-date-picker :disabled-date="DisabledDate" v-model="Tabelform.date" type="daterange"
-								start-placeholder="开始日期" end-placeholder="结束日期" />
+							<el-date-picker
+								:disabled-date="DisabledDate"
+								v-model="Tabelform.date"
+								type="daterange"
+								start-placeholder="开始日期"
+								end-placeholder="结束日期"
+							/>
 						</el-form-item>
 					</el-form>
 				</div>
@@ -30,8 +35,15 @@
 		<div class="Content">
 			<!-- 列表 -->
 			<el-card shadow="always">
-				<el-table :data="tableData" height="500px" @selection-change="handleSelectionChange" highlight-current-row="true"
-					stripe="true" v-loading="Tabelloading" element-loading-text="加载中...">
+				<el-table
+					:data="tableData"
+					height="500px"
+					@selection-change="handleSelectionChange"
+					highlight-current-row="true"
+					stripe="true"
+					v-loading="Tabelloading"
+					element-loading-text="加载中..."
+				>
 					<el-table-column type="index" width="55"></el-table-column>
 					<el-table-column prop="bill_number" label="账单号" width="210" show-overflow-tooltip="true"></el-table-column>
 					<el-table-column prop="type" label="交易类型" width="180">
@@ -61,9 +73,15 @@
 					</template>
 				</el-table>
 				<div class="Content_Foot">
-					<el-pagination @current-change="handleCurrentChange" @size-change="handleSizeChange"
-						v-model:page-size="pageSize" v-model:current-page="currentPage" background="#ffffff" :total="TabelTotal"
-						layout="total, sizes, prev, pager, next, jumper"></el-pagination>
+					<el-pagination
+						@current-change="handleCurrentChange"
+						@size-change="handleSizeChange"
+						v-model:page-size="pageSize"
+						v-model:current-page="currentPage"
+						background="#ffffff"
+						:total="TabelTotal"
+						layout="total, sizes, prev, pager, next, jumper"
+					></el-pagination>
 				</div>
 			</el-card>
 			<!-- 新增编辑 -->
@@ -76,9 +94,12 @@
 						</el-radio-group>
 					</el-form-item>
 					<el-form-item label="账单金额" label-width="120px" prop="amount">
-						<el-input v-model="AddForm.amount"
+						<el-input
+							v-model="AddForm.amount"
 							:formatter="(value: any) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-							:parser="(value: any) => value.replace(/\$\s?|(,*)/g, '')" clearable></el-input>
+							:parser="(value: any) => value.replace(/\$\s?|(,*)/g, '')"
+							clearable
+						></el-input>
 					</el-form-item>
 					<el-form-item label="备注" label-width="120px" prop="remarks">
 						<el-input v-model="AddForm.remarks" type="textarea"></el-input>
@@ -229,7 +250,6 @@ const handledelete = (row: tableData) => {
 		.delete("/apis/api/1.0/bill/delete", { id })
 		.then((result: { re_code: number }) => {
 			if (result.re_code == 0) {
-
 				ChechkForm();
 			}
 		})
@@ -330,6 +350,9 @@ const Export = () => {
 					// 数据行
 					bills.forEach((item: any, index: any) => {
 						const Lists = columns.map((o) => {
+							if (o.key == "index") {
+								item[o.key] = index + 1;
+							}
 							if (o.key == "type") {
 								item[o.key] = Type[item[o.key]];
 							}
@@ -339,7 +362,6 @@ const Export = () => {
 
 							return item[o.key];
 						});
-						Lists.unshift(index + 1);
 						sheet.addRow(Lists);
 					});
 
