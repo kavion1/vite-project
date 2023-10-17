@@ -7,12 +7,12 @@
             <el-tabs v-model="activeName" type="card" @tab-click="handleClick" :stretch=true>
               <el-tab-pane label="登录" name="login">
                 <div style="margin-top: 20px">
-                  <Login />
+                  <Login @getActiveInfo="getActiveInfo"/>
                 </div>
               </el-tab-pane>
-              <el-tab-pane label="注册" name="signIn">
+              <el-tab-pane :label="activeEvent" name="signIn">
                 <div style="margin-top: 20px">
-                  <SignIn @getActiveName="getActiveName" />
+                  <SignIn @getActiveName="getActiveName" :currentEvent="activeEvent" />
                 </div>
               </el-tab-pane>
             </el-tabs>
@@ -31,12 +31,23 @@ import Login from './login.vue';
 import type { TabsPaneContext } from 'element-plus'
 
 let activeName = ref('login');
+let activeEvent = ref('注册');
+
 
 const getActiveName = (data: string) => {
   activeName.value = data;
 };
 
+const getActiveInfo = (data: object) => {
+  const { name = '', event = '' } = data;
+  activeName.value = name;
+  activeEvent.value = event;
+};
+
 const handleClick = (tab: TabsPaneContext, _event: Event) => {
+  if (tab.props.name === 'login') {
+    activeEvent.value = '注册';
+  }
   console.log('tab.props.name', tab.props.name)
 }
 

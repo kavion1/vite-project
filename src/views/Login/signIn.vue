@@ -19,14 +19,14 @@
 				<el-input v-model="signInData.confirm" placeholder="请确认密码"></el-input>
 			</el-form-item>
 			<el-form-item class="login-form-item">
-				<el-button class="login-button" type="primary" @click="handleRegister(ruleFormRef)">注册</el-button>
+				<el-button class="login-button" type="primary" @click="handleRegister(ruleFormRef)">{{ confirmName }}</el-button>
 			</el-form-item>
 		</el-form>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, getCurrentInstance } from "vue";
+import { ref, reactive, getCurrentInstance, watch } from "vue";
 const { proxy } = getCurrentInstance() as any;
 import { Md5 } from "ts-md5";
 import { FormInstance, FormRules } from "element-plus";
@@ -107,8 +107,15 @@ const signInRules = reactive<FormRules<any>>({
 });
 
 const countDown = ref<number>(0);
-
+const confirmName = ref<string>('注册');
 const emits = defineEmits(["getActiveName"]);
+const props = defineProps({
+  currentEvent: String
+})
+
+watch(() => props.currentEvent, (newValue) => {
+  confirmName.value = newValue
+});
 
 const getCode = (FormRules: any) => {
 	FormRules.validateField("phone_num", (bool: boolean, _b: any) => {
@@ -154,9 +161,10 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
 			const params = {
 				phone_num: signInData.value.phone_num,
 				phone_code: Number(signInData.value.phone_code),
-				password: signInData.value.password,
+				password: Md5.hashStr(signInData.value.password),
 			};
-			proxy?.$axios
+      if (confirmName.value === '注册') {
+        proxy?.$axios
 				.post("/apis/api/1.0/user/register", {
 					...params,
 					password: Md5.hashStr(signInData.value.password),
@@ -183,6 +191,34 @@ const handleRegister = async (formEl: FormInstance | undefined) => {
 						});
 					}
 				});
+      } else {
+        proxy.$axios
+				.post("/apis/api/1.0/user/change_password", params)
+				.then((result: { re_code: number; msg: any }) => {
+					if (result.re_code === '0') {
+            signInData.value = {
+							phone_num: "",
+							phone_code: "",
+							password: "",
+							confirm: "",
+						};
+						ElMessage({
+							message: "修改成功",
+							type: "success",
+						});
+            setTimeout(() => {
+							emits("getActiveName", "login");
+						}, 500);
+					} else {
+            ElMessage({
+							message: res.msg || "修改失败",
+							type: "error",
+						});
+					}
+				})
+				.catch((_err: any) => {});
+      }
+
 		} else {
 			console.log("error handleRegister!", fields);
 		}
