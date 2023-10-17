@@ -11,11 +11,12 @@
 				<el-button class="login-button" type="primary" @click="handleLogin(ruleFormRef)">登录</el-button>
 			</el-form-item>
 		</el-form>
+    <el-link type="primary" @click="handlePassword">忘记密码？</el-link>
 	</div>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, getCurrentInstance } from "vue";
+import { ref, reactive, getCurrentInstance, defineEmits } from "vue";
 import { FormInstance, FormRules } from 'element-plus';
 import { useRouter } from "vue-router";
 import { Md5 } from "ts-md5";
@@ -32,6 +33,8 @@ const loginData = ref<LoginData>({
 	phone_num: "",
 	password: "",
 });
+
+const emits = defineEmits(["getActiveInfo"]);
 
 const router = useRouter();
 const { cookies } = useCookies();
@@ -69,6 +72,13 @@ const loginRules = reactive<FormRules<LoginData>>({
 		},
 	],
 });
+
+const handlePassword = () => {
+  emits("getActiveInfo", {
+    name: 'signIn',
+    event: '修改密码',
+  });
+};
 
 const handleLogin = async (formEl: FormInstance | undefined) => {
 	if (!formEl) return;
