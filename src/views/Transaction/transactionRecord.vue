@@ -264,10 +264,11 @@ const CancelForm = (formrules: FormInstance | undefined) => {
 //查询
 const ChechkForm = () => {
 	Tabelloading.value = true;
+	console.log("Tabelform.value.date[1]", new Date(Tabelform.value.date[1]).setHours(23, 59, 59, 59));
 
 	const param = {
-		start_date: Date.parse(new Date(Tabelform.value.date[0]) as any),
-		end_date: Date.parse(new Date(Tabelform.value.date[1]) as any),
+		start_date: new Date(Tabelform.value.date[0]).setHours(0, 0, 0, 0),
+		end_date: new Date(Tabelform.value.date[1]).setHours(23, 59, 59, 59),
 		p: currentPage.value,
 		pz: pageSize.value,
 	};
@@ -295,8 +296,8 @@ const Reset = () => {
 //导出
 const Export = () => {
 	const param = {
-		start_date: Date.parse(new Date(Tabelform.value.date[0]) as any),
-		end_date: Date.parse(new Date(Tabelform.value.date[1]) as any),
+		start_date: new Date(Tabelform.value.date[0]).setHours(0, 0, 0, 0),
+		end_date: new Date(Tabelform.value.date[1]).setHours(23, 59, 59, 59),
 	};
 	proxy.$axios
 		.get("/apis/api/1.0/bill/export", param)
@@ -397,7 +398,7 @@ const Export = () => {
 						});
 					}
 					sheet.mergeCells(total + 2, 1, total + 2, columns.length);
-					sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_in}；期间总收入：${total_out}；`;
+					sheet.getCell(`B${total + 2}`).value = `期间总支出：${total_out}；期间总收入：${total_in}；`;
 					// 剧中
 					sheet.getCell(`B${total + 2}`).alignment = { vertical: "middle", horizontal: "center" };
 					sheet.getCell(`B${total + 2}`).font = {
